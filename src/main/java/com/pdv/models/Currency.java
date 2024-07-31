@@ -6,13 +6,15 @@ import jakarta.persistence.*;
 
 @Entity
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-@Table(name = "categories")
-public class Category {
+@Table(name = "currencies")
+public class Currency {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private String code;
     private String name;
-    private String description;
+    private String symbol;
+
 
     public Long getId() {
         return id;
@@ -20,6 +22,15 @@ public class Category {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
     }
 
     public String getName() {
@@ -30,12 +41,12 @@ public class Category {
         this.name = name;
     }
 
-    public String getDescription() {
-        return description;
+    public String getSymbol() {
+        return symbol;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setSymbol(String symbol) {
+        this.symbol = symbol;
     }
 
     @ManyToOne(fetch = FetchType.EAGER)

@@ -55,6 +55,7 @@ public class ProductController {
             Category category = categoryService.findById(product.getCategory().getId());
             product.setCategory(category);
         }
+        
         Product savedProduct = productRepository.save(product);
         return ResponseEntity.ok(savedProduct);
     }
