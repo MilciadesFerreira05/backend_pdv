@@ -37,7 +37,7 @@ public class ProductController {
      *
      * @return Lista de productos.
      */
-    @CrossOrigin(origins = "http://localhost:5175")
+   @CrossOrigin(origins = "http://localhost:5175")
     @GetMapping(produces = "application/json")
     public List<Product> getAllProducts() {
         return productRepository.findAll();

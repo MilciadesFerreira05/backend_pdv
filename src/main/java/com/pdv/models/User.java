@@ -30,16 +30,16 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private Integer createdId;
 
-    @CreatedDate
-    @Column(name = "created_at", nullable = false, insertable = true, updatable = false)
-    private Timestamp createdAt;
+ 
+    // @Column(name = "created_at", nullable = false)
+    // private Timestamp createdAt;
 
-    @UpdateTimestamp
-    @Column(name = "updated_at", nullable = true, insertable = false, updatable = true)
-    private Timestamp updatedAt;
+ 
+    // @Column(name = "updated_at", nullable = true)
+    // private Timestamp updatedAt;
 
     @Column(name = "isadmin")
     private boolean isAdmin;
@@ -98,21 +98,21 @@ public class User {
         this.createdId = createdId;
     }
 
-    public Timestamp getCreatedAt() {
-        return createdAt;
-    }
+    // public Timestamp getCreatedAt() {
+    //     return createdAt;
+    // }
 
-    public void setCreatedAt(Timestamp createdAt) {
-        this.createdAt = createdAt;
-    }
+    // public void setCreatedAt(Timestamp createdAt) {
+    //     this.createdAt = createdAt;
+    // }
 
-    public Timestamp getUpdatedAt() {
-        return updatedAt;
-    }
+    // public Timestamp getUpdatedAt() {
+    //     return updatedAt;
+    // }
 
-    public void setUpdatedAt(Timestamp updatedAt) {
-        this.updatedAt = updatedAt;
-    }
+    // public void setUpdatedAt(Timestamp updatedAt) {
+    //     this.updatedAt = updatedAt;
+    // }
 
     
 
