@@ -10,7 +10,4 @@ import com.pdv.models.Role;
 
 @Repository
 public interface RoleRepository extends JpaRepository<Role, Long> {
-    // @Override
-    // @EntityGraph(attributePaths = { "rolePermissions", "rolePermissions.permission" })
-    // List<Role> findAll();
 }

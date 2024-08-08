@@ -1,12 +1,13 @@
 package com.pdv.services;
 
-
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.pdv.auth.UserInfoDetails;
 import com.pdv.models.User;
@@ -24,19 +25,20 @@ public class UserInfoService implements UserDetailsService {
     private PasswordEncoder encoder;
 
     @Override
+    @Transactional
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-
         Optional<User> userDetail = repository.findByUsername(username);
 
-        return userDetail.map(UserInfoDetails::new)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found " + username));
+        User user = userDetail.orElseThrow(() -> new UsernameNotFoundException("User not found " + username));
+        
+        // Inicializar los permisos del rol
+        Hibernate.initialize(user.getRole().getPermissions());
+
+        return new UserInfoDetails(user);
     }
 
     public User addUser(User userInfo) {
         userInfo.setPassword(encoder.encode(userInfo.getPassword()));
-        User user = repository.save(userInfo);
-        return user;
+        return repository.save(userInfo);
     }
-
-
 }

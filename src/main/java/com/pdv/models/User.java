@@ -41,10 +41,14 @@ public class User {
     @ManyToOne
     @JoinColumn(name = "role_id")
     private Role role;
+
+    public String[] getPermissions(){
+        return role.getPermissions().stream().map(Permission::getName).toArray(String[]::new);
+    }
     
-    @ManyToOne
-    @JoinColumn(name = "created_id")
-    private User user;
+    // @ManyToOne
+    // @JoinColumn(name = "created_id")
+    // private User user;
     
 
 }

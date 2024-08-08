@@ -1,52 +1,45 @@
 package com.pdv.models;
 
+import java.time.LocalDateTime;
+
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.persistence.*;
+import lombok.Data;
 
 @Entity
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Table(name = "categories")
+@Data
 public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false, unique = true)
     private String name;
+
+    @Column(nullable = true)
     private String description;
+    
+    
+    @CreatedDate
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
 
-    public Long getId() {
-        return id;
-    }
+    @LastModifiedDate
+    @Column(name = "updated_at", nullable = true)
+    private LocalDateTime updatedAt;
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id")
-    private User user;
+    @JoinColumn(name = "created_id")
+    private User createdBy;
 
-    public User getUser() {
-        return user;
-    }
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "updated_id")
+    private User updatedBy;
 
-    public void setUser(User user) {
-        this.user = user;
-    }
 }

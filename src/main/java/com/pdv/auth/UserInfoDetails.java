@@ -19,14 +19,12 @@ public class UserInfoDetails implements UserDetails {
     private List<GrantedAuthority> authorities;
 
     public UserInfoDetails(User userInfo) {
-        id = userInfo.getId();
-        name = userInfo.getUsername();
-        password = userInfo.getPassword();
-        authorities = Arrays.stream(userInfo.getRole().getPermissions().toArray(new String[0]))
+        this.id = userInfo.getId();
+        this.name = userInfo.getUsername();
+        this.password = userInfo.getPassword();
+        this.authorities = Arrays.stream(userInfo.getPermissions())
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
-       
-        // System.out.println("permissions: " + userInfo.getRole().getPermissions());
     }
 
     @Override

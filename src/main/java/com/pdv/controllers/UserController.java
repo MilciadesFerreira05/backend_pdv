@@ -14,6 +14,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import com.pdv.auth.AuthRequest;
@@ -49,6 +50,9 @@ public class UserController {
     private JwtService jwtService;
 
     @Autowired
+    private PasswordEncoder encoder;
+
+    @Autowired
     private AuthenticationManager authenticationManager;
 
     @PostMapping("addNewUser")
@@ -58,20 +62,30 @@ public class UserController {
     }
 
     @GetMapping("roles")
-    public ResponseEntity<List<Role>> getRole() {
-        List<Role> roles = roleService.findAll();
-        return ResponseEntity.ok().body(roles);
+    public ResponseEntity<String> getRole() {
+
+        String encoded = encoder.encode("123");
+        
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken("admin", "123")
+            );
+            return ResponseEntity.ok().body(encoded);
+        } catch (Exception e) {
+            return ResponseEntity.ok().body(e.getMessage());
+        }
+        
     }
 
 
     @GetMapping("user/userProfile")
-    @PreAuthorize("hasAuthority('user.profile')")
+    @PreAuthorize("hasAuthority('Caja.cobrar')")
     public String userProfile() {
         return "Welcome to User Profile";
     }
 
     @GetMapping("admin/adminProfile")
-    @PreAuthorize("hasAuthority('admin.profile')")
+    @PreAuthorize("hasAuthority('Caja.abrir')")
     public String adminProfile() {
         return "Welcome to Admin Profile";
     }
@@ -80,6 +94,9 @@ public class UserController {
     public ResponseEntity<HashMap<String, Object>> authenticateAndGetToken(@RequestBody AuthRequest authRequest) {
       
         try {
+
+            System.out.println("authRequest: " + authRequest);
+
             Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword()));
             if (authentication.isAuthenticated()) {
                
@@ -99,8 +116,8 @@ public class UserController {
                 return ResponseEntity.badRequest().build();
             }
         } catch (Exception e) {
-            System.out.println(e.getMessage());
-            return ResponseEntity.internalServerError().build();
+            e.printStackTrace();
+            return ResponseEntity.badRequest().build();
         }
 
     }
