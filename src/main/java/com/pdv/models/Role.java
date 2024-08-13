@@ -28,15 +28,12 @@ public class Role {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
-    
-    // @ManyToOne
-    // @JoinColumn(name = "user_id")
-    // private User user;
+
   
     // @OneToMany(mappedBy = "role", cascade = CascadeType.ALL)
     // private Set<RolePermission> rolePermissions;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
         name = "role_permissions", 
         joinColumns = @JoinColumn(  name = "role_id", referencedColumnName = "id"), 

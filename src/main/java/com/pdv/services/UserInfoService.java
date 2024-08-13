@@ -2,12 +2,17 @@ package com.pdv.services;
 
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Service;
 
 import com.pdv.auth.UserInfoDetails;
 import com.pdv.models.User;
@@ -35,6 +40,16 @@ public class UserInfoService implements UserDetailsService {
         Hibernate.initialize(user.getRole().getPermissions());
 
         return new UserInfoDetails(user);
+    }
+
+    public User getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof UserDetails) {
+            UserInfoDetails userDetails = (UserInfoDetails) authentication.getPrincipal();
+            User user = repository.findById(userDetails.getId()).orElse(null); ;
+            return  user;
+        }
+        return null;
     }
 
     public User addUser(User userInfo) {

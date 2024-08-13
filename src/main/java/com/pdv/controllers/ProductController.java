@@ -1,113 +1,85 @@
 package com.pdv.controllers;
 
+import com.pdv.models.Product;
+import com.pdv.services.FileStorageService;
+import com.pdv.services.ProductService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
-import com.pdv.models.Category;
-import com.pdv.models.Product;
-import com.pdv.repositories.ProductRepository;
-import com.pdv.services.CategoryService;
-
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.Positive;
-
+import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
-/**
- * Controlador para manejar las operaciones relacionadas con productos.
- */
 @RestController
 @RequestMapping("/api/products")
-@CrossOrigin(origins = "http://localhost:5175")
-@Validated
 public class ProductController {
 
-    private final ProductRepository productRepository;
     @Autowired
-    private CategoryService categoryService;
+    private ProductService productService;
 
-    public ProductController(ProductRepository productRepository) {
-        this.productRepository = productRepository;
-    }
+    @Autowired
+    private FileStorageService fileStorageService;
 
-    /**
-     * Obtiene todos los productos.
-     *
-     * @return Lista de productos.
-     */
-   @CrossOrigin(origins = "http://localhost:5175")
-    @GetMapping(produces = "application/json")
+    @GetMapping
     public List<Product> getAllProducts() {
-        return productRepository.findAll();
+        return productService.findAll();
     }
 
-    /**
-     * Crea un nuevo producto.
-     *
-     * @param product Producto a crear, debe estar validado.
-     * @return Respuesta con el producto creado.
-     */
-    @PostMapping
-    public ResponseEntity<Product> createProduct(@RequestBody Product product) {
-        if (product.getCategory() != null && product.getCategory().getId() != null) {
-            Category category = categoryService.findById(product.getCategory().getId());
-            product.setCategory(category);
-        }
-        
-        Product savedProduct = productRepository.save(product);
-        return ResponseEntity.ok(savedProduct);
-    }
-
-    /**
-     * Obtiene un producto por su ID.
-     *
-     * @param id ID del producto a buscar.
-     * @return Respuesta con el producto encontrado o un estado 404 si no se encuentra.
-     */
     @GetMapping("/{id}")
-    public ResponseEntity<Product> getProductById(@PathVariable @Positive @RequestParam int id) {
-        return productRepository.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<Product> getProductById(@PathVariable Long id) {
+        Optional<Product> product = productService.findById(id);
+        return product.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    /**
-     * Actualiza un producto existente.
-     *
-     * @param id ID del producto a actualizar.
-     * @param updatedProduct Producto con los datos actualizados.
-     * @return Respuesta con el producto actualizado o un estado 404 si el producto no se encuentra.
-     */
+    @PostMapping
+    public ResponseEntity<Product> createProduct(
+            @ModelAttribute Product product,
+            @RequestParam("file") MultipartFile file) {
+        try {
+            Product savedProduct = productService.save(product, file);
+            return ResponseEntity.ok(savedProduct);
+        } catch (IOException e) {
+            return ResponseEntity.status(500).body(null);
+        }
+    }
+
     @PutMapping("/{id}")
-    public ResponseEntity<Product> updateProduct(@PathVariable @Positive @RequestParam int id,
-                                                  @Valid @RequestBody Product updatedProduct) {
-        return productRepository.findById(id)
-                .map(product -> {
-                    product.setName(updatedProduct.getName());
-                    product.setDescription(updatedProduct.getDescription());
-                    product.setPrice(updatedProduct.getPrice());
-                    product.setStock(updatedProduct.getStock()); // Asegúrate de que el modelo tenga el campo stock.
-                    Product savedProduct = productRepository.save(product);
-                    return ResponseEntity.ok(savedProduct);
-                })
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<Product> updateProduct(
+            @PathVariable Long id,
+            @ModelAttribute Product updatedProduct,
+            @RequestParam(value = "file", required = false) MultipartFile file) {
+        try {
+            Optional<Product> existingProductOpt = productService.findById(id);
+            if (existingProductOpt.isPresent()) {
+                Product product = existingProductOpt.get();
+                product.setCode(updatedProduct.getCode());
+                product.setName(updatedProduct.getName());
+                product.setDescription(updatedProduct.getDescription());
+                product.setPrice(updatedProduct.getPrice());
+                product.setStock(updatedProduct.getStock());
+                product.setStockControl(updatedProduct.getStockControl());
+
+                if (file != null && !file.isEmpty()) {
+                    String fileName = fileStorageService.saveFile(file);
+                    product.setImageUrl(fileName);
+                }
+
+                Product savedProduct = productService.save(product, file);
+                return ResponseEntity.ok(savedProduct);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (IOException e) {
+            return ResponseEntity.status(500).body(null);
+        }
     }
 
-    /**
-     * Elimina un producto por su ID.
-     *
-     * @param id ID del producto a eliminar.
-     * @return Respuesta con el estado de la operación.
-     */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Object> deleteProduct(@PathVariable @Positive @RequestParam int id) {
-        return productRepository.findById(id)
-                .map(product -> {
-                    productRepository.delete(product);
-                    return ResponseEntity.noContent().build();
-                })
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
+        productService.delete(id);
+        return ResponseEntity.noContent().build();
     }
 }

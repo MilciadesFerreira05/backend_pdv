@@ -1,11 +1,14 @@
 package com.pdv.controllers;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import com.pdv.models.Category;
 import com.pdv.repositories.CategoryRepository;
+import com.pdv.services.CategoryService;
+
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 
@@ -14,55 +17,56 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/categories")
-@CrossOrigin(origins = "http://localhost:5175")
 @Validated
 public class CategoryController {
 
 
-    private CategoryRepository categoryRepository;
+    @Autowired
+    private CategoryService categoryService;
 
-    // @Autowired
-    // private UserService userService;
-
-    public CategoryController(CategoryRepository categoryRepository){
-        this.categoryRepository = categoryRepository;
+    @GetMapping
+    public List<Category> getActive() {
+        return categoryService.findActive();
     }
 
+    @GetMapping("/all")
     public List<Category> getAll() {
-        return categoryRepository.findAll();
+        return categoryService.findAll();
     }
 
     @PostMapping
     public ResponseEntity<Category> create(@RequestBody Category category) {        
-        Category savedCategory = categoryRepository.save(category);
+        Category savedCategory = categoryService.save(category);
         return ResponseEntity.ok(savedCategory);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Category> getById(@PathVariable @Positive @RequestParam Long id) {
-        return categoryRepository.findById(id)
+    public ResponseEntity<Category> getById(@PathVariable @Positive Long id) {
+        return categoryService.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
+    
 
     @PutMapping("/{id}")
-    public ResponseEntity<Category> updateProduct(@PathVariable @Positive @RequestParam Long id,
+    public ResponseEntity<Category> updateProduct(@PathVariable @Positive Long id,
                                                   @Valid @RequestBody Category updatedCategory) {
-        return categoryRepository.findById(id)
+        return categoryService.findById(id)
                 .map(category -> {
                     category.setName(updatedCategory.getName());
                     category.setDescription(updatedCategory.getDescription());
-                    Category savedProduct = categoryRepository.save(category);
+                    Category savedProduct = categoryService.save(category);
                     return ResponseEntity.ok(savedProduct);
                 })
                 .orElse(ResponseEntity.notFound().build());
     }
+    
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Object> delete(@PathVariable @Positive @RequestParam Long id) {
-        return categoryRepository.findById(id)
+    public ResponseEntity<Object> delete(@PathVariable @Positive Long id) {
+        return categoryService.findById(id)
                 .map(product -> {
-                    categoryRepository.delete(product);
+                    categoryService.delete(product);
                     return ResponseEntity.noContent().build();
                 })
                 .orElse(ResponseEntity.notFound().build());
