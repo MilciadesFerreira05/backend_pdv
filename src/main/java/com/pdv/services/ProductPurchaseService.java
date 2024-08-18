@@ -1,12 +1,7 @@
 package com.pdv.services;
 
 import com.pdv.models.ProductPurchase;
-import com.pdv.models.ProductPurchaseItem;
-import com.pdv.models.Product;
-import com.pdv.models.User;
 import com.pdv.repositories.ProductPurchaseRepository;
-import com.pdv.repositories.ProductRepository;
-import com.pdv.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -37,12 +32,12 @@ public class ProductPurchaseService {
 
     public ProductPurchase save(ProductPurchase purchase) {
         purchase.setCreatedBy(userInfoService.getCurrentUser());
-
         return ProductpurchaseRepository.save(purchase);
     }
     
-    public void delete(Long id) {
-        ProductpurchaseRepository.deleteById(id);
+    public void delete(ProductPurchase purchase) {
+        purchase.setDeletedBy(userInfoService.getCurrentUser());
+        ProductpurchaseRepository.save(purchase);
     }
     
 }

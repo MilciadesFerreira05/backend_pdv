@@ -44,7 +44,6 @@ public abstract class Auditable {
     @JoinColumn(name = "deleted_id", nullable = true)
     private User deletedBy; 
     
-
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
@@ -58,6 +57,4 @@ public abstract class Auditable {
             deletedAt = LocalDateTime.now();
         }
     }
-
-    // Getters y setters
 }

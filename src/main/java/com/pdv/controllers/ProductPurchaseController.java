@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,22 +29,26 @@ public class ProductPurchaseController {
     private ProductPurchaseService purchaseService;
 
     @GetMapping
+    @PreAuthorize("hasAuthority('ProductPurchase.active')")
     public List<ProductPurchase> getActive() {
         return purchaseService.findActive();
     }
 
     @GetMapping("/all")
+    @PreAuthorize("hasAuthority('ProductPurchase.all')")
     public List<ProductPurchase> getAll() {
         return purchaseService.findAll();
     }
 
     @PostMapping
+    @PreAuthorize("hasAuthority('ProductPurchase.create')")
     public ResponseEntity<ProductPurchase> create(@RequestBody ProductPurchase productPurchase) {        
         ProductPurchase savedPurchase = purchaseService.save(productPurchase);
         return ResponseEntity.ok(savedPurchase);
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('ProductPurchase.read')")
     public ResponseEntity<ProductPurchase> getById(@PathVariable @Positive Long id) {
         return purchaseService.findById(id)
                 .map(ResponseEntity::ok)
@@ -52,6 +57,7 @@ public class ProductPurchaseController {
     
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('ProductPurchase.update')")
     public ResponseEntity<ProductPurchase> updateProductPurchase(@PathVariable @Positive Long id,
                                                   @Valid @RequestBody ProductPurchase updatedProductPurchase) {
         return purchaseService.findById(id)
@@ -68,10 +74,11 @@ public class ProductPurchaseController {
     
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('ProductPurchase.delete')")
     public ResponseEntity<Object> delete(@PathVariable @Positive Long id) {
-        return categoryService.findById(id)
+        return purchaseService.findById(id)
                 .map(product -> {
-                    categoryService.delete(product);
+                    purchaseService.delete(product);
                     return ResponseEntity.noContent().build();
                 })
                 .orElse(ResponseEntity.notFound().build());

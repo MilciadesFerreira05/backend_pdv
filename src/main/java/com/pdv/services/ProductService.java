@@ -28,6 +28,10 @@ public class ProductService {
         return productRepository.findAll();
     }
 
+    public List<Product> findActive() {
+        return productRepository.findByDeletedAtIsNull();
+    }
+
     public Optional<Product> findById(Long id) {
         return productRepository.findById(id);
     }
@@ -50,8 +54,7 @@ public class ProductService {
 
     public void delete(Long id) {
         productRepository.findById(id).ifPresent(product -> {
-            User currentUser = userInfoService.getCurrentUser();
-            product.setDeletedBy(currentUser);
+            product.setDeletedBy(userInfoService.getCurrentUser());
             productRepository.save(product);
         });
     }

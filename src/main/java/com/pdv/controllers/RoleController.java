@@ -27,17 +27,13 @@ public class RoleController {
         this.roleRepository = roleRepository;
     }
 
-    @GetMapping
+
+    
+
+    @GetMapping("/all")
     public List<Role> getAllRoles() {
         return roleRepository.findAll();
     }
-
-    // Obtener todos los roles
-    // @GetMapping
-    // public ResponseEntity<List<Role>> getAllRoles() {
-    //     List<Role> roles = roleRepository.findAll();
-    //     return ResponseEntity.ok(roles);
-    // }
 
     // Obtener un rol por id
     @GetMapping("/{id}")

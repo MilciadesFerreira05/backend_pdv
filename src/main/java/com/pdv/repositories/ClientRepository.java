@@ -5,12 +5,10 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.pdv.models.Product;
+import com.pdv.models.Client;
+
 
 @Repository
-public interface ProductRepository extends JpaRepository<Product, Long> {
-
-    List<Product> findByDeletedAtIsNull();
+public interface ClientRepository extends JpaRepository<Client, Long> {
+    List<Client> findByDeletedAtIsNull();
 }
-
-

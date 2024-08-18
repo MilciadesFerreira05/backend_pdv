@@ -1,6 +1,5 @@
 package com.pdv.models;
 
-
 import java.time.LocalDate;
 import java.util.List;
 
@@ -9,10 +8,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 @Entity
-@Table(name = "products_purchases")
+@Table(name = "products_sales")
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class ProductPurchase extends Auditable {
+public class ProductSale extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -24,13 +23,13 @@ public class ProductPurchase extends Auditable {
     private String invoiceNumber;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "supplier_id")
-    private Supplier supplier;
+    @JoinColumn(name = "client_id")
+    private Client client;
 
     @Column(name = "total", nullable = false)
     private Double total;
 
-    @OneToMany(mappedBy = "purchase", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ProductPurchaseItem> items;
-
+    @OneToMany(mappedBy = "sale", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProductSaleItem> items;
 }
+

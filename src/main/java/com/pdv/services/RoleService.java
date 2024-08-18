@@ -29,4 +29,9 @@ public class RoleService {
     public void deleteById(Long id) {
         roleRepository.deleteById(id);
     }
+
+    public List<Role> findByActive() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'findByActive'");
+    }
 }

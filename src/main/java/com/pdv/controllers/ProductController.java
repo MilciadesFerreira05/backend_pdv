@@ -6,6 +6,7 @@ import com.pdv.services.ProductService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -24,17 +25,26 @@ public class ProductController {
     private FileStorageService fileStorageService;
 
     @GetMapping
+    @PreAuthorize("hasAuthority('Product.active')")
     public List<Product> getAllProducts() {
+        return productService.findActive();
+    }
+
+    @GetMapping("/all")
+    @PreAuthorize("hasAuthority('Product.all')")
+    public List<Product> getAll() {
         return productService.findAll();
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('Product.read')")
     public ResponseEntity<Product> getProductById(@PathVariable Long id) {
         Optional<Product> product = productService.findById(id);
         return product.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping
+    @PreAuthorize("hasAuthority('Product.create')")
     public ResponseEntity<Product> createProduct(
             @ModelAttribute Product product,
             @RequestParam("file") MultipartFile file) {
@@ -47,6 +57,7 @@ public class ProductController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('Product.update')")
     public ResponseEntity<Product> updateProduct(
             @PathVariable Long id,
             @ModelAttribute Product updatedProduct,
@@ -78,6 +89,7 @@ public class ProductController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('Product.delete')")
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
         productService.delete(id);
         return ResponseEntity.noContent().build();
