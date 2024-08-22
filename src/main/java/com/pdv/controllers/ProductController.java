@@ -45,24 +45,19 @@ public class ProductController {
 
     @PostMapping
     @PreAuthorize("hasAuthority('Product.create')")
-    public ResponseEntity<Product> createProduct(
-            @ModelAttribute Product product,
-            @RequestParam("file") MultipartFile file) {
-        try {
-            Product savedProduct = productService.save(product, file);
-            return ResponseEntity.ok(savedProduct);
-        } catch (IOException e) {
-            return ResponseEntity.status(500).body(null);
-        }
+    public ResponseEntity<Product> createProduct(@RequestBody Product product) {
+    
+        Product savedProduct = productService.save(product);
+        return ResponseEntity.ok(savedProduct);
+
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('Product.update')")
     public ResponseEntity<Product> updateProduct(
             @PathVariable Long id,
-            @ModelAttribute Product updatedProduct,
-            @RequestParam(value = "file", required = false) MultipartFile file) {
-        try {
+            @RequestBody Product updatedProduct) {
+
             Optional<Product> existingProductOpt = productService.findById(id);
             if (existingProductOpt.isPresent()) {
                 Product product = existingProductOpt.get();
@@ -73,19 +68,11 @@ public class ProductController {
                 product.setStock(updatedProduct.getStock());
                 product.setStockControl(updatedProduct.getStockControl());
 
-                if (file != null && !file.isEmpty()) {
-                    String fileName = fileStorageService.saveFile(file);
-                    product.setImageUrl(fileName);
-                }
-
-                Product savedProduct = productService.save(product, file);
+                Product savedProduct = productService.save(product);
                 return ResponseEntity.ok(savedProduct);
             } else {
                 return ResponseEntity.notFound().build();
             }
-        } catch (IOException e) {
-            return ResponseEntity.status(500).body(null);
-        }
     }
 
     @DeleteMapping("/{id}")

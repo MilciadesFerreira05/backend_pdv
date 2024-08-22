@@ -10,5 +10,5 @@ import com.pdv.models.Role;
 @Repository
 public interface RoleRepository extends JpaRepository<Role, Long> {
 
-    List<Role> findByActive();
+    List<Role> findByDeletedAtIsNull();
 }

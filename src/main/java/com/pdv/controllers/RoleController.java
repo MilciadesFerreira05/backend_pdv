@@ -3,11 +3,11 @@ package com.pdv.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import com.pdv.models.Role;
-import com.pdv.repositories.RoleRepository;
 import com.pdv.services.RoleService;
 
 import jakarta.validation.Valid;
@@ -21,42 +21,46 @@ import java.util.Optional;
 public class RoleController {
 
 
-    private RoleRepository roleRepository;
-
-    public RoleController(RoleRepository roleRepository) {
-        this.roleRepository = roleRepository;
-    }
-
-
-    
+    @Autowired
+    private RoleService roleService;
 
     @GetMapping("/all")
+    @PreAuthorize("hasAuthority('Role.all')")
     public List<Role> getAllRoles() {
-        return roleRepository.findAll();
+        return roleService.findAll();
+    }
+
+    @GetMapping
+    @PreAuthorize("hasAuthority('Role.active')")
+    public List<Role> getActiveRoles() {
+        return roleService.findActive();
     }
 
     // Obtener un rol por id
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('Role.read')")
     public ResponseEntity<Role> getRoleById(@PathVariable Long id) {
-        Optional<Role> role = roleRepository.findById(id);
-        return role.map(ResponseEntity::ok)
-                   .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+        return roleService.findById(id)
+        .map(ResponseEntity::ok)
+        .orElse(ResponseEntity.notFound().build());
     }
 
     // Crear un nuevo rol
     @PostMapping
+    @PreAuthorize("hasAuthority('Role.create')")
     public ResponseEntity<Role> createRole(@Valid @RequestBody Role role) {
-        Role createdRole = roleRepository.save(role);
+        Role createdRole = roleService.save(role);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdRole);
     }
 
     // Actualizar un rol existente
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('Role.update')")
     public ResponseEntity<Role> updateRole(@PathVariable Long id, @Valid @RequestBody Role role) {
-        Optional<Role> existingRole = roleRepository.findById(id);
+        Optional<Role> existingRole = roleService.findById(id);
         if (existingRole.isPresent()) {
             role.setId(id);
-            Role updatedRole = roleRepository.save(role);
+            Role updatedRole = roleService.save(role);
             return ResponseEntity.ok(updatedRole);
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
@@ -65,12 +69,13 @@ public class RoleController {
 
     // Eliminar un rol
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteRole(@PathVariable Long id) {
-        if (roleRepository.findById(id).isPresent()) {
-            roleRepository.deleteById(id);
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+    @PreAuthorize("hasAuthority('Role.delete')")
+    public ResponseEntity<Object> deleteRole(@PathVariable Long id) {
+        return roleService.findById(id)
+                .map(role -> {
+                    roleService.delete(role);
+                    return ResponseEntity.noContent().build();
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
 }

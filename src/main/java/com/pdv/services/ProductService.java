@@ -36,13 +36,8 @@ public class ProductService {
         return productRepository.findById(id);
     }
 
-    public Product save(Product product, MultipartFile file) throws IOException {
+    public Product save(Product product){
         User currentUser = userInfoService.getCurrentUser();
-        
-        if (file != null && !file.isEmpty()) {
-            String fileName = fileStorageService.saveFile(file);
-            product.setImageUrl(fileName);
-        }
 
         if (product.getId() == null) {
             product.setCreatedBy(currentUser);

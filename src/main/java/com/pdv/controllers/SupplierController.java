@@ -2,6 +2,7 @@ package com.pdv.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,22 +25,26 @@ public class SupplierController {
     private SupplierService supplierService;
 
     @GetMapping
+    @PreAuthorize("hasAuthority('Supplier.active')")
     public List<Supplier> getActive() {
         return supplierService.findActive();
     }
 
     @GetMapping("/all")
+    @PreAuthorize("hasAuthority('Supplier.all')")
     public List<Supplier> getAll() {
         return supplierService.findAll();
     }
 
     @PostMapping
+    @PreAuthorize("hasAuthority('Supplier.create')")
     public ResponseEntity<Supplier> create(@RequestBody Supplier supplier) {        
         Supplier savedSupplier = supplierService.save(supplier);
         return ResponseEntity.ok(savedSupplier);
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('Supplier.read')")
     public ResponseEntity<Supplier> getById(@PathVariable @Positive Long id) {
         return supplierService.findById(id)
                 .map(ResponseEntity::ok)
@@ -48,6 +53,7 @@ public class SupplierController {
     
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('Supplier.update')")
     public ResponseEntity<Supplier> updateSupplier(@PathVariable @Positive Long id,
                                                   @Valid @RequestBody Supplier updatedSupplier) {
         return supplierService.findById(id)
@@ -62,6 +68,7 @@ public class SupplierController {
     
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('Supplier.delete')")
     public ResponseEntity<Object> delete(@PathVariable @Positive Long id) {
         return supplierService.findById(id)
                 .map(supplier -> {

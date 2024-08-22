@@ -31,95 +31,44 @@ import com.pdv.services.UserInfoService;
 import com.pdv.services.UserService;
 
 @RestController
-@RequestMapping("auth")
+@RequestMapping("/api/users")
 public class UserController {
 
     @Autowired
-    private UserInfoService service;
+    private UserService service;
 
-    @Autowired
-    private RoleService roleService;
-
-    @Autowired
-    private PermissionService permissionService;
-
-    @Autowired
-    private RolePermissionService rolePermissionService;
-
-    @Autowired
-    private JwtService jwtService;
-
-    @Autowired
-    private PasswordEncoder encoder;
-
-    @Autowired
-    private AuthenticationManager authenticationManager;
-
-    @PostMapping("addNewUser")
-    public ResponseEntity<User> addUser(@RequestBody User userInfo) {
-        User user = service.addUser(userInfo);
-        return ResponseEntity.ok(user);
+    @GetMapping("/all")
+    @PreAuthorize("hasAuthority('User.all')")
+    public List<User> getAll() {
+        return service.findAll();
     }
 
-    @GetMapping("roles")
-    public ResponseEntity<String> getRole() {
+    @GetMapping
+    @PreAuthorize("hasAuthority('User.active')")
+    public List<User> getActive() {
+        return service.findAll();
+    }
 
-        String encoded = encoder.encode("123");
-        
-        try {
-            Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken("admin", "123")
-            );
-            return ResponseEntity.ok().body(encoded);
-        } catch (Exception e) {
-            return ResponseEntity.ok().body(e.getMessage());
-        }
-        
+    @PostMapping
+    @PreAuthorize("hasAuthority('User.create')")
+    public User create(@RequestBody User user) {
+        return service.save(user);
     }
 
 
-    @GetMapping("user/userProfile")
-    @PreAuthorize("hasAuthority('Caja.cobrar')")
-    public String userProfile() {
-        return "Welcome to User Profile";
+    @PutMapping
+    @PreAuthorize("hasAuthority('User.update')")
+    public User update(@RequestBody User user) {
+        return service.save(user);
     }
 
-    @GetMapping("admin/adminProfile")
-    @PreAuthorize("hasAuthority('Caja.abrir')")
-    public String adminProfile() {
-        return "Welcome to Admin Profile";
+
+    @DeleteMapping
+    @PreAuthorize("hasAuthority('User.delete')")
+    public void delete(@RequestBody User user) {
+        service.delete(user);
     }
 
-    @PostMapping("generateToken")
-    public ResponseEntity<HashMap<String, Object>> authenticateAndGetToken(@RequestBody AuthRequest authRequest) {
-      
-        try {
 
-            System.out.println("authRequest: " + authRequest);
-
-            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword()));
-            if (authentication.isAuthenticated()) {
-               
-                String username = authentication.getName();
-                Long id = ((UserInfoDetails) authentication.getPrincipal()).getId();
-                List<String> authorities = ((UserInfoDetails) authentication.getPrincipal()).getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
-                String token = jwtService.generateToken(authRequest.getUsername());
-
-                HashMap<String, Object> map = new HashMap<>();
-                map.put("id", id);
-                map.put("username", username);
-                map.put("authorities", authorities);
-                map.put("token", token);
-
-                return ResponseEntity.ok().body(map);
-            } else {
-                return ResponseEntity.badRequest().build();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.badRequest().build();
-        }
-
-    }
 
 }
