@@ -21,8 +21,6 @@ public class ProductController {
     @Autowired
     private ProductService productService;
 
-    @Autowired
-    private FileStorageService fileStorageService;
 
     @GetMapping
     @PreAuthorize("hasAuthority('Product.active')")

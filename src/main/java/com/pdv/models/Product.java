@@ -31,9 +31,6 @@ public class Product extends Auditable {
     private String description;
 
     @Column(nullable = true)
-    private String imageUrl;
-
-    @Column(nullable = true)
     private Integer iva;
 
     @ManyToOne

@@ -21,8 +21,6 @@ public class ProductService {
     @Autowired
     private UserInfoService userInfoService; 
 
-    @Autowired
-    private FileStorageService fileStorageService;
 
     public List<Product> findAll() {
         return productRepository.findAll();
