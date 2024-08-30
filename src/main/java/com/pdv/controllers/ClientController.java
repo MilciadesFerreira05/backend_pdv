@@ -1,6 +1,7 @@
 package com.pdv.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -40,7 +41,7 @@ public class ClientController {
     @PreAuthorize("hasAuthority('Client.create')")
     public ResponseEntity<Client> create(@RequestBody Client client) {        
         Client savedClient = clientService.save(client);
-        return ResponseEntity.ok(savedClient);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedClient);
     }
 
     @GetMapping("/{id}")
@@ -54,16 +55,9 @@ public class ClientController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('Client.update')")
-    public ResponseEntity<Client> updateClient(@PathVariable @Positive Long id,
-                                              @Valid @RequestBody Client updatedClient) {
-        return clientService.findById(id)
-                .map(client -> {
-                    client.setName(updatedClient.getName());
-                    client.setAddress(updatedClient.getAddress());
-                    Client savedClient = clientService.save(client);
-                    return ResponseEntity.ok(savedClient);
-                })
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<Client> updateClient(@PathVariable @Positive Long id, @Valid @RequestBody Client client) {
+        return ResponseEntity.ok(clientService.update(client, id));
+
     }
     
 

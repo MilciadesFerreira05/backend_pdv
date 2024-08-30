@@ -1,6 +1,9 @@
 package com.pdv.models;
 
 import java.util.Set;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -28,6 +31,7 @@ public class Role extends Auditable{
     private String name;
 
     @ManyToMany(fetch = FetchType.LAZY)
+    @JsonIgnore
     @JoinTable(
         name = "role_permissions", 
         joinColumns = @JoinColumn(  name = "role_id", referencedColumnName = "id"), 
@@ -35,7 +39,5 @@ public class Role extends Auditable{
         )
     private Set<Permission> permissions;
 
-
-      
 
 }

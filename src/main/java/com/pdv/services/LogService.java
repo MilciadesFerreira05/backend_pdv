@@ -13,7 +13,9 @@ public class LogService {
     private LogRepository repository;
     
     public void save(Log log) {
+
         repository.save(log);
+
     }
 
 }

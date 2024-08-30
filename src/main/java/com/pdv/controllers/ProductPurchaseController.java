@@ -3,6 +3,7 @@ package com.pdv.controllers;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -44,7 +45,7 @@ public class ProductPurchaseController {
     @PreAuthorize("hasAuthority('ProductPurchase.create')")
     public ResponseEntity<ProductPurchase> create(@RequestBody ProductPurchase productPurchase) {        
         ProductPurchase savedPurchase = purchaseService.save(productPurchase);
-        return ResponseEntity.ok(savedPurchase);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedPurchase);
     }
 
     @GetMapping("/{id}")
@@ -58,18 +59,8 @@ public class ProductPurchaseController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('ProductPurchase.update')")
-    public ResponseEntity<ProductPurchase> updateProductPurchase(@PathVariable @Positive Long id,
-                                                  @Valid @RequestBody ProductPurchase updatedProductPurchase) {
-        return purchaseService.findById(id)
-                .map( purchase -> {
-                    purchase.setDate(updatedProductPurchase.getDate());
-                    purchase.setInvoiceNumber(updatedProductPurchase.getInvoiceNumber());
-                    purchase.setItems(updatedProductPurchase.getItems());
-                    purchase.setTotal(updatedProductPurchase.getTotal());
-                    purchase.setSupplier(updatedProductPurchase.getSupplier());
-
-                    return ResponseEntity.ok(purchaseService.save(purchase));
-                }).orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<ProductPurchase> updateProductPurchase(@PathVariable @Positive Long id, @Valid @RequestBody ProductPurchase purchase) {
+        return ResponseEntity.ok(purchaseService.update(purchase));
     }
     
 

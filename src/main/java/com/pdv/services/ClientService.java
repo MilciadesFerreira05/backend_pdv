@@ -10,29 +10,13 @@ import com.pdv.models.Client;
 import com.pdv.repositories.ClientRepository;
 
 @Service
-public class ClientService {
+public class ClientService extends BaseService<Client> {
 
     @Autowired
     private ClientRepository clientRepository;
 
-    @Autowired
-    private UserInfoService userInfoService;
-
-    public List<Client> findAll() {
-       return clientRepository.findAll();
-    }
-
-    public List<Client> findActive() {
-        return clientRepository.findByDeletedAtIsNull(); 
-    }
-
-    public Optional<Client> findById(Long id) {
-        return clientRepository.findById(id);
-    }
-
-    public Client save(Client client) {
-        client.setCreatedBy(userInfoService.getCurrentUser());
-        return clientRepository.save(client);
+    public ClientService(){
+        this.repository = clientRepository;
     }
 
     public Client update(Client client, Long id) {
@@ -46,10 +30,7 @@ public class ClientService {
         currentClient.setUpdatedBy(userInfoService.getCurrentUser());
         return clientRepository.save(currentClient);
     }
-    public void delete(Client client) {
-        client.setDeletedBy(userInfoService.getCurrentUser());
-        clientRepository.save(client);
-    }
+
 
 }
 

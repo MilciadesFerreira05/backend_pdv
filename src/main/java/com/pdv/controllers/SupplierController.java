@@ -1,6 +1,7 @@
 package com.pdv.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -40,7 +41,7 @@ public class SupplierController {
     @PreAuthorize("hasAuthority('Supplier.create')")
     public ResponseEntity<Supplier> create(@RequestBody Supplier supplier) {        
         Supplier savedSupplier = supplierService.save(supplier);
-        return ResponseEntity.ok(savedSupplier);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedSupplier);
     }
 
     @GetMapping("/{id}")

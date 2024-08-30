@@ -5,6 +5,7 @@ import com.pdv.services.FileStorageService;
 import com.pdv.services.ProductService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -44,39 +45,28 @@ public class ProductController {
     @PostMapping
     @PreAuthorize("hasAuthority('Product.create')")
     public ResponseEntity<Product> createProduct(@RequestBody Product product) {
-    
+
         Product savedProduct = productService.save(product);
-        return ResponseEntity.ok(savedProduct);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedProduct);
 
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('Product.update')")
-    public ResponseEntity<Product> updateProduct(
-            @PathVariable Long id,
-            @RequestBody Product updatedProduct) {
-
-            Optional<Product> existingProductOpt = productService.findById(id);
-            if (existingProductOpt.isPresent()) {
-                Product product = existingProductOpt.get();
-                product.setCode(updatedProduct.getCode());
-                product.setName(updatedProduct.getName());
-                product.setDescription(updatedProduct.getDescription());
-                product.setPrice(updatedProduct.getPrice());
-                product.setStock(updatedProduct.getStock());
-                product.setStockControl(updatedProduct.getStockControl());
-
-                Product savedProduct = productService.save(product);
-                return ResponseEntity.ok(savedProduct);
-            } else {
-                return ResponseEntity.notFound().build();
-            }
+    public ResponseEntity<Product> updateProduct(@PathVariable Long id, @RequestBody Product product) {
+                
+        return ResponseEntity.ok( productService.update(product, id));
+                
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('Product.delete')")
-    public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
-        productService.delete(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<Object> deleteProduct(@PathVariable Long id) {
+        return productService.findById(id)
+        .map(product -> {
+            productService.delete(product);
+            return ResponseEntity.noContent().build();
+        })
+        .orElse(ResponseEntity.notFound().build());
     }
 }

@@ -57,14 +57,7 @@ public class RoleController {
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('Role.update')")
     public ResponseEntity<Role> updateRole(@PathVariable Long id, @Valid @RequestBody Role role) {
-        Optional<Role> existingRole = roleService.findById(id);
-        if (existingRole.isPresent()) {
-            role.setId(id);
-            Role updatedRole = roleService.save(role);
-            return ResponseEntity.ok(updatedRole);
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+        return ResponseEntity.ok(roleService.update(role, id));
     }
 
     // Eliminar un rol

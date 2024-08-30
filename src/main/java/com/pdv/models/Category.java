@@ -19,4 +19,8 @@ public class Category extends Auditable{
     @Column(nullable = true)
     private String description;
     
+    @Override
+    public String toString() {
+        return "Category [id=" + id + ", name=" + name + ", description=" + description + "]";
+    }
 }

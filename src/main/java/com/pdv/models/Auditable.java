@@ -30,7 +30,8 @@ public abstract class Auditable {
     @JsonIgnore
     private LocalDateTime deletedAt;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
     @JoinColumn(name = "created_by")
     private User createdBy;
 

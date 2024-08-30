@@ -3,6 +3,7 @@ package com.pdv.controllers;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -43,7 +44,7 @@ public class ProductSaleController {
     @PreAuthorize("hasAuthority('ProductSale.create')")
     public ResponseEntity<ProductSale> create(@RequestBody ProductSale productSale) {        
         ProductSale savedSale = saleService.save(productSale);
-        return ResponseEntity.ok(savedSale);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedSale);
     }
 
     @GetMapping("/{id}")
@@ -57,18 +58,10 @@ public class ProductSaleController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('ProductSale.update')")
-    public ResponseEntity<ProductSale> updateProductSale(@PathVariable @Positive Long id,
-                                                  @Valid @RequestBody ProductSale updatedProductSale) {
-        return saleService.findById(id)
-                .map( sale -> {
-                    sale.setDate(updatedProductSale.getDate());
-                    sale.setInvoiceNumber(updatedProductSale.getInvoiceNumber());
-                    sale.setItems(updatedProductSale.getItems());
-                    sale.setTotal(updatedProductSale.getTotal());
-                    sale.setClient(updatedProductSale.getClient());
+    public ResponseEntity<ProductSale> updateProductSale(@PathVariable @Positive Long id, @Valid @RequestBody ProductSale sale) {
 
-                    return ResponseEntity.ok(saleService.save(sale));
-                }).orElse(ResponseEntity.notFound().build());
+        return ResponseEntity.ok(saleService.update(sale, id));
+            
     }
     
 

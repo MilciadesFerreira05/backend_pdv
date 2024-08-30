@@ -6,49 +6,41 @@ import com.pdv.repositories.ProductRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.Optional;
 
 @Service
-public class ProductService {
+public class ProductService extends BaseService<Product> {
 
     @Autowired
     private ProductRepository productRepository;
 
-    @Autowired
-    private UserInfoService userInfoService; 
-
-
-    public List<Product> findAll() {
-        return productRepository.findAll();
+    public ProductService() {
+        this.repository = productRepository;
     }
 
-    public List<Product> findActive() {
-        return productRepository.findByDeletedAtIsNull();
+    public Product update(Product updatedProduct, Long id) {
+
+        User user = userInfoService.getCurrentUser();
+
+        Product product = this.productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+
+        String oldProduct = product.toString();
+
+        product.setCode(updatedProduct.getCode());
+        product.setName(updatedProduct.getName());
+        product.setDescription(updatedProduct.getDescription());
+        product.setPrice(updatedProduct.getPrice());
+        product.setStock(updatedProduct.getStock());
+        product.setStockControl(updatedProduct.getStockControl());
+        product.setUpdatedBy(user);
+
+        Product productDB = this.productRepository.save(product);
+
+        String newProduct = product.toString();
+
+        this.log("update", newProduct, oldProduct, user);
+
+        return productDB;
     }
 
-    public Optional<Product> findById(Long id) {
-        return productRepository.findById(id);
-    }
-
-    public Product save(Product product){
-        User currentUser = userInfoService.getCurrentUser();
-
-        if (product.getId() == null) {
-            product.setCreatedBy(currentUser);
-        } else {
-            product.setUpdatedBy(currentUser);
-        }
-        return productRepository.save(product);
-    }
-
-    public void delete(Long id) {
-        productRepository.findById(id).ifPresent(product -> {
-            product.setDeletedBy(userInfoService.getCurrentUser());
-            productRepository.save(product);
-        });
-    }
 }

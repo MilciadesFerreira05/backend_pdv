@@ -7,7 +7,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -37,11 +37,11 @@ public class Product extends Auditable {
     @JoinColumn(name = "category_id")
     private Category category;
 
-    @Column(nullable = true)
+    @Column(nullable = false)
     private Double price;
 
-    @Column(nullable = true)
-    private Integer stock;
+    @Column(nullable = false)
+    private Integer stock = 0;
 
     @Column(nullable = true)
     private Boolean stockControl;
