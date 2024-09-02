@@ -1,7 +1,6 @@
 package com.pdv.services;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +9,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.pdv.models.Auditable;
-import com.pdv.models.Category;
 import com.pdv.models.Log;
 import com.pdv.models.User;
 import com.pdv.repositories.BaseRepository;

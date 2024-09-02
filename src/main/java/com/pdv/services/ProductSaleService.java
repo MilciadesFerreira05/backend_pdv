@@ -1,6 +1,5 @@
 package com.pdv.services;
 
-import com.pdv.models.ProductPurchase;
 import com.pdv.models.ProductSale;
 import com.pdv.models.User;
 import com.pdv.repositories.ProductSaleRepository;

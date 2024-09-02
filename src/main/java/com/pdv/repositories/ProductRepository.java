@@ -10,8 +10,8 @@ import com.pdv.models.Product;
 
 @Repository
 public interface ProductRepository extends BaseRepository<Product, Long> {
-	@Query("SELECT p FROM Product p WHERE p.name LIKE %:name% OR p.code LIKE %:code%")
-	List<Product> findByNameOrCode(@Param("name") String name, @Param("code") String code);
+	@Query("SELECT p FROM Product p WHERE p.name LIKE %:q% OR p.code LIKE %:q%")
+	List<Product> findByNameOrCode(@Param("q") String q);
 }
 
 

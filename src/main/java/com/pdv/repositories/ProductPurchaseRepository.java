@@ -1,7 +1,5 @@
 package com.pdv.repositories;
 
-import java.util.List;
-
 import org.springframework.stereotype.Repository;
 
 import com.pdv.models.ProductPurchase;
