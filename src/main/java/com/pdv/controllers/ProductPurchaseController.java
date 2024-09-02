@@ -3,6 +3,10 @@ package com.pdv.controllers;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -12,6 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.pdv.models.Category;
@@ -31,14 +36,26 @@ public class ProductPurchaseController {
 
     @GetMapping
     @PreAuthorize("hasAuthority('ProductPurchase.active')")
-    public List<ProductPurchase> getActive() {
-        return purchaseService.findActive();
+    public Page<ProductPurchase> getActive(
+        @RequestParam(defaultValue = "0", required = false) int page,
+        @RequestParam(defaultValue = "10", required = false) int size,
+        @RequestParam(defaultValue = "id", required = false) String sort,
+        @RequestParam(defaultValue = "ASC", required = false) String direction
+    ) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.valueOf(direction), sort));
+        return purchaseService.findActive(pageable);
     }
 
     @GetMapping("/all")
     @PreAuthorize("hasAuthority('ProductPurchase.all')")
-    public List<ProductPurchase> getAll() {
-        return purchaseService.findAll();
+    public Page<ProductPurchase> getAll(
+        @RequestParam(defaultValue = "0", required = false) int page,
+        @RequestParam(defaultValue = "10", required = false) int size,
+        @RequestParam(defaultValue = "id", required = false) String sort,
+        @RequestParam(defaultValue = "ASC", required = false) String direction
+    ) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.valueOf(direction), sort));
+        return purchaseService.findAll(pageable);
     }
 
     @PostMapping
@@ -60,7 +77,7 @@ public class ProductPurchaseController {
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('ProductPurchase.update')")
     public ResponseEntity<ProductPurchase> updateProductPurchase(@PathVariable @Positive Long id, @Valid @RequestBody ProductPurchase purchase) {
-        return ResponseEntity.ok(purchaseService.update(purchase));
+        return ResponseEntity.ok(purchaseService.update(purchase, id));
     }
     
 

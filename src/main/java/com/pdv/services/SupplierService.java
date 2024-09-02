@@ -18,7 +18,8 @@ public class SupplierService extends BaseService<Supplier> {
     public SupplierService() {
         this.repository = supplierRepository;
     }
-
+    
+    @Override
     public Supplier update(Supplier supplier, Long id) {
         User currentUser = userInfoService.getCurrentUser();
         Supplier currentSupplier = supplierRepository.findById(id).orElseThrow(() -> new RuntimeException("Supplier not found"));

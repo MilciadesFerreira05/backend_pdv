@@ -36,6 +36,7 @@ public class UserService extends BaseService<User> {
         return userRepository.save(user);
     }
 
+    @Override
     public User update(User user, Long id) {
         User LogedUser = userInfoService.getCurrentUser();
 

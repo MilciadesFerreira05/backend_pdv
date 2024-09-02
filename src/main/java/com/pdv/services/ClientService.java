@@ -19,6 +19,7 @@ public class ClientService extends BaseService<Client> {
         this.repository = clientRepository;
     }
 
+    @Override
     public Client update(Client client, Long id) {
         Client currentClient = clientRepository.findById(id).orElseThrow(() -> new RuntimeException("Client not found"));
         currentClient.setName(client.getName());

@@ -17,6 +17,7 @@ public class ProductService extends BaseService<Product> {
         this.repository = productRepository;
     }
 
+    @Override
     public Product update(Product updatedProduct, Long id) {
 
         User user = userInfoService.getCurrentUser();

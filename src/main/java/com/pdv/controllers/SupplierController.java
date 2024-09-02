@@ -1,6 +1,10 @@
 package com.pdv.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,14 +31,26 @@ public class SupplierController {
 
     @GetMapping
     @PreAuthorize("hasAuthority('Supplier.active')")
-    public List<Supplier> getActive() {
-        return supplierService.findActive();
+    public Page<Supplier> getActive(
+        @RequestParam(defaultValue = "0", required = false) int page,
+        @RequestParam(defaultValue = "10", required = false) int size,
+        @RequestParam(defaultValue = "id", required = false) String sort,
+        @RequestParam(defaultValue = "ASC", required = false) String direction
+    ) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.valueOf(direction), sort));
+        return supplierService.findActive(pageable);
     }
 
     @GetMapping("/all")
     @PreAuthorize("hasAuthority('Supplier.all')")
-    public List<Supplier> getAll() {
-        return supplierService.findAll();
+    public Page<Supplier> getAll(
+        @RequestParam(defaultValue = "0", required = false) int page,
+        @RequestParam(defaultValue = "10", required = false) int size,
+        @RequestParam(defaultValue = "id", required = false) String sort,
+        @RequestParam(defaultValue = "ASC", required = false) String direction
+    ) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.valueOf(direction), sort));
+        return supplierService.findAll(pageable);
     }
 
     @PostMapping
@@ -55,16 +71,10 @@ public class SupplierController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('Supplier.update')")
-    public ResponseEntity<Supplier> updateSupplier(@PathVariable @Positive Long id,
-                                                  @Valid @RequestBody Supplier updatedSupplier) {
-        return supplierService.findById(id)
-                .map(supplier -> {
-                    supplier.setName(updatedSupplier.getName());
-                    supplier.setAddress(updatedSupplier.getAddress());
-                    Supplier savedSupplier = supplierService.save(supplier);
-                    return ResponseEntity.ok(savedSupplier);
-                })
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<Supplier> updateSupplier(@PathVariable @Positive Long id, @Valid @RequestBody Supplier supplier) {
+
+        return ResponseEntity.ok(supplierService.update(supplier, id));
+
     }
     
 

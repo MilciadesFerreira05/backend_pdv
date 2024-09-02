@@ -21,6 +21,7 @@ public class CategoryService extends BaseService<Category> {
     }
 
 
+    @Override
     public Category update(Category category, Long id) {
         User user = userInfoService.getCurrentUser();
         Category currentCategory = repository.findById(id).orElseThrow(() -> new RuntimeException("Category not found"));

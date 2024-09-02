@@ -16,7 +16,7 @@ import com.pdv.models.User;
 import com.pdv.repositories.BaseRepository;
 
 @Service
-public class BaseService<T> {
+public abstract class BaseService<T> {
 
     @Autowired
     protected UserInfoService userInfoService;
@@ -52,6 +52,8 @@ public class BaseService<T> {
         return repository.findById(id);
     }
 
+    public abstract T update(T t, Long id);
+
     public void delete(T t) {
         User user = userInfoService.getCurrentUser();
         ((Auditable) t).setDeletedBy(user);
@@ -60,7 +62,6 @@ public class BaseService<T> {
 
         repository.save(t);
     }
-
 
     public void log(String action, String newData, String oldData, User user) {
         new Thread(()->{

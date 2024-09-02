@@ -16,8 +16,8 @@ public class ProductPurchaseService extends BaseService<ProductPurchase> {
         this.repository = ProductpurchaseRepository;
     }
   
-    
-    public ProductPurchase update(ProductPurchase purchase) {
+    @Override
+    public ProductPurchase update(ProductPurchase purchase, Long id) {
 
         User currentUser = this.userInfoService.getCurrentUser();
 
@@ -40,4 +40,6 @@ public class ProductPurchaseService extends BaseService<ProductPurchase> {
 
         return updatedPurchase;
     }
+
+
 }

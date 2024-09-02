@@ -1,6 +1,10 @@
 package com.pdv.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -13,7 +17,6 @@ import com.pdv.services.ClientService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 
-import java.util.List;
 
 
 @RestController
@@ -27,14 +30,26 @@ public class ClientController {
 
     @GetMapping
     @PreAuthorize("hasAuthority('Client.active')")
-    public List<Client> getActive() {
-        return clientService.findActive();
+    public Page<Client> getActive(
+        @RequestParam(defaultValue = "0", required = false) int page,
+        @RequestParam(defaultValue = "10", required = false) int size,
+        @RequestParam(defaultValue = "id", required = false) String sort,
+        @RequestParam(defaultValue = "ASC", required = false) String direction
+    ) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.valueOf(direction),sort));
+        return clientService.findActive(pageable);
     }
 
     @GetMapping("/all")
     @PreAuthorize("hasAuthority('Client.all')")
-    public List<Client> getAll() {
-        return clientService.findAll();
+    public Page<Client> getAll(
+        @RequestParam(defaultValue = "0", required = false) int page,
+        @RequestParam(defaultValue = "10", required = false) int size,
+        @RequestParam(defaultValue = "id", required = false) String sort,
+        @RequestParam(defaultValue = "ASC", required = false) String direction
+    ) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.valueOf(direction), sort));
+        return clientService.findAll(pageable);
     }
 
     @PostMapping

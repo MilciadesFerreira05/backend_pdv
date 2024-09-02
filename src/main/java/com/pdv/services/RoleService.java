@@ -19,6 +19,7 @@ public class RoleService extends BaseService<Role> {
     }
 
   
+    @Override
     public Role update(Role role, Long id) {
 
         Role currentRole = repository.findById(id).orElseThrow(() -> new RuntimeException("Role not found"));

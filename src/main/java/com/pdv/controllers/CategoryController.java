@@ -17,8 +17,6 @@ import com.pdv.services.CategoryService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 
-import java.util.List;
-
 
 @RestController
 @RequestMapping("/api/categories")

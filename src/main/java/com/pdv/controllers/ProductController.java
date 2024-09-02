@@ -5,6 +5,10 @@ import com.pdv.services.FileStorageService;
 import com.pdv.services.ProductService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -25,14 +29,27 @@ public class ProductController {
 
     @GetMapping
     @PreAuthorize("hasAuthority('Product.active')")
-    public List<Product> getAllProducts() {
-        return productService.findActive();
+    public Page<Product> getAllProducts(
+        @RequestParam(defaultValue = "0", required = false) int page,
+        @RequestParam(defaultValue = "10", required = false) int size,
+        @RequestParam(defaultValue = "id", required = false) String sort,
+        @RequestParam(defaultValue = "ASC", required = false) String direction
+    ) {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.valueOf(direction), sort));
+        return productService.findActive(pageable);
     }
 
     @GetMapping("/all")
     @PreAuthorize("hasAuthority('Product.all')")
-    public List<Product> getAll() {
-        return productService.findAll();
+    public Page<Product> getAll(
+        @RequestParam(defaultValue = "0", required = false) int page,
+        @RequestParam(defaultValue = "10", required = false) int size,
+        @RequestParam(defaultValue = "id", required = false) String sort,
+        @RequestParam(defaultValue = "ASC", required = false) String direction
+    ) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.valueOf(direction), sort));
+        return productService.findAll(pageable);
     }
 
     @GetMapping("/{id}")
