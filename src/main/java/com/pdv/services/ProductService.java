@@ -5,6 +5,8 @@ import com.pdv.models.User;
 import com.pdv.repositories.ProductRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -15,6 +17,11 @@ public class ProductService extends BaseService<Product> {
 
     public ProductService() {
         this.repository = productRepository;
+    }
+
+    
+    public Page<Product> findByNameOrDescriptionOrCode(String q, Pageable pageable) {
+        return this.productRepository.findByNameOrDescriptionOrCode(q, pageable);
     }
 
     @Override

@@ -35,6 +35,20 @@ public class ProductController {
         return productService.findActive(pageable);
     }
 
+    
+    @GetMapping("/search")
+    @PreAuthorize("hasAuthority('Product.active')")
+    public Page<Product> searchByNameOrDescriptionOrCode(
+        @RequestParam(defaultValue = "", required = false) String q,
+        @RequestParam(defaultValue = "0", required = false) int page,
+        @RequestParam(defaultValue = "10", required = false) int size,
+        @RequestParam(defaultValue = "id", required = false) String sort,
+        @RequestParam(defaultValue = "ASC", required = false) String direction
+    ) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.valueOf(direction), sort));
+        return productService.findByNameOrDescriptionOrCode(q, pageable);
+    }
+
     @GetMapping("/all")
     @PreAuthorize("hasAuthority('Product.all')")
     public Page<Product> getAll(
