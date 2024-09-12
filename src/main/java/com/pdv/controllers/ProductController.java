@@ -22,6 +22,15 @@ public class ProductController {
     private ProductService productService;
 
 
+    /**
+     * Get all active products.
+     *
+     * @param page   the page number
+     * @param size   the page size
+     * @param sort   the field to sort on
+     * @param direction the sort direction (ASC or DESC)
+     * @return the page of products
+     */
     @GetMapping
     @PreAuthorize("hasAuthority('Product.active')")
     public Page<Product> getAllProducts(
@@ -36,6 +45,16 @@ public class ProductController {
     }
 
     
+    /**
+     * Search for products by name, description or code.
+     *
+     * @param q      the search query
+     * @param page   the page number
+     * @param size   the page size
+     * @param sort   the field to sort on
+     * @param direction the sort direction (ASC or DESC)
+     * @return the page of products
+     */
     @GetMapping("/search")
     @PreAuthorize("hasAuthority('Product.active')")
     public Page<Product> searchByNameOrDescriptionOrCode(

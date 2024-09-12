@@ -11,8 +11,8 @@ import com.pdv.models.Product;
 
 @Repository
 public interface ProductRepository extends BaseRepository<Product, Long> {
-	@Query("SELECT p FROM Product p WHERE p.name LIKE %:q% OR p.description LIKE %:q% OR p.code LIKE %:q%")
-	Page<Product> findByNameOrDescriptionOrCode(@Param("q") String q, Pageable pageable);
+	@Query("SELECT p FROM Product p WHERE LOWER(p.name) LIKE LOWER(CONCAT('%', :q, '%')) OR LOWER(p.description) LIKE LOWER(CONCAT('%', :q, '%')) OR LOWER(p.code) LIKE LOWER(CONCAT('%', :q, '%'))")
+	Page<Product> findByNameOrDescriptionOrCode(@Param("q") String q, Pageable pageable);	
 }
 
 

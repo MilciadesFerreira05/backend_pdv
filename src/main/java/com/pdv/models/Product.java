@@ -33,6 +33,9 @@ public class Product extends Auditable {
     @Column(nullable = true)
     private Integer iva;
 
+    @Column(nullable = true)
+    private Double profit;
+
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;
@@ -41,7 +44,7 @@ public class Product extends Auditable {
     private Double price;
 
     @Column(nullable = false)
-    private Integer stock = 0;
+    private Double stock = 0.0;
 
     @Column(nullable = true)
     private Boolean stockControl;

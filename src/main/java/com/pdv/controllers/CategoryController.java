@@ -27,6 +27,15 @@ public class CategoryController {
     @Autowired
     private CategoryService categoryService;
 
+    /**
+     * Gets a list of active categories, sorted and paginated.
+     *
+     * @param page     the page number to retrieve (0-indexed)
+     * @param size     the number of records per page
+     * @param sort     the field to sort by
+     * @param direction the direction to sort by
+     * @return a page of active categories
+     */
     @GetMapping
     @PreAuthorize("hasAuthority('Category.active')")
     public Page<Category> getActive( 
@@ -35,10 +44,19 @@ public class CategoryController {
         @RequestParam(defaultValue = "id", required = false) String sort,
         @RequestParam(defaultValue = "ASC", required = false) String direction
     ) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sort));
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.valueOf(direction), sort));
         return categoryService.findActive(pageable);
     }
 
+    /**
+     * Gets a list of all categories, sorted and paginated.
+     *
+     * @param page     the page number to retrieve (0-indexed)
+     * @param size     the number of records per page
+     * @param sort     the field to sort by
+     * @param direction the direction to sort by
+     * @return a page of all categories
+     */
     @GetMapping("/all")
     @PreAuthorize("hasAuthority('Category.all')")
     public Page<Category> getAll(
@@ -47,16 +65,24 @@ public class CategoryController {
         @RequestParam(defaultValue = "id", required = false) String sort,
         @RequestParam(defaultValue = "ASC", required = false) String direction
     ) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sort));
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.valueOf(direction), sort));
         return categoryService.findAll(pageable);
     }
 
+    /**
+     * Creates a new category
+     *
+     * @param category the category to create
+     * @return the created category
+     */
     @PostMapping
     @PreAuthorize("hasAuthority('Category.create')")
     public ResponseEntity<Category> create(@RequestBody Category category) {        
         Category savedCategory = categoryService.save(category);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedCategory);
     }
+
+
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAuthority('Category.read')")
