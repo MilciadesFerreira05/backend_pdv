@@ -64,92 +64,93 @@ ON CONFLICT (id) DO NOTHING;
 
 
 -- Product Permissions
-INSERT INTO permissions (name) 
+INSERT INTO permissions (name, description, module) 
 VALUES 
-    ('Product.active'),
-    ('Product.delete'),
-    ('Product.create'),
-    ('Product.update'),
-    ('Product.all'),
-    ('Product.read')
+    ('Product.active', 'Listar productos activos', 'Productos'),
+    ('Product.delete', 'Eliminar producto', 'Productos'),
+    ('Product.create', 'Crear producto', 'Productos'),
+    ('Product.update', 'Actualizar producto', 'Productos'),
+    ('Product.all', 'Permisos completos de producto', 'Productos'),
+    ('Product.read', 'Ver producto', 'Productos')
 ON CONFLICT (name) DO NOTHING;
 
 -- Supplier Permissions
-INSERT INTO permissions (name) 
+INSERT INTO permissions (name, description, module) 
 VALUES 
-    ('Supplier.active'),
-    ('Supplier.delete'),
-    ('Supplier.create'),
-    ('Supplier.update'),
-    ('Supplier.all'),
-    ('Supplier.read')
+    ('Supplier.active', 'Listar proveedores activos', 'Proveedores'),
+    ('Supplier.delete', 'Eliminar proveedor', 'Proveedores'),
+    ('Supplier.create', 'Crear proveedor', 'Proveedores'),
+    ('Supplier.update', 'Actualizar proveedor', 'Proveedores'),
+    ('Supplier.all', 'Permisos completos de proveedor', 'Proveedores'),
+    ('Supplier.read', 'Ver proveedor', 'Proveedores')
 ON CONFLICT (name) DO NOTHING;
 
 -- Role Permissions
-INSERT INTO permissions (name) 
+INSERT INTO permissions (name, description, module) 
 VALUES 
-    ('Role.active'),
-    ('Role.delete'),
-    ('Role.create'),
-    ('Role.update'),
-    ('Role.all'),
-    ('Role.read')
+    ('Role.active', 'Listar roles activos', 'Roles'),
+    ('Role.delete', 'Eliminar rol', 'Roles'),
+    ('Role.create', 'Crear rol', 'Roles'),
+    ('Role.update', 'Actualizar rol', 'Roles'),
+    ('Role.all', 'Permisos completos de rol', 'Roles'),
+    ('Role.read', 'Ver rol', 'Roles')
 ON CONFLICT (name) DO NOTHING;
 
 -- User Permissions
-INSERT INTO permissions (name) 
+INSERT INTO permissions (name, description, module) 
 VALUES 
-    ('User.active'),
-    ('User.delete'),
-    ('User.create'),
-    ('User.update'),
-    ('User.all'),
-    ('User.read')
+    ('User.active', 'Listar usuarios activos', 'Usuarios'),
+    ('User.delete', 'Eliminar usuario', 'Usuarios'),
+    ('User.create', 'Crear usuario', 'Usuarios'),
+    ('User.update', 'Actualizar usuario', 'Usuarios'),
+    ('User.all', 'Permisos completos de usuario', 'Usuarios'),
+    ('User.read', 'Ver usuario', 'Usuarios')
 ON CONFLICT (name) DO NOTHING;
 
 -- Client Permissions
-INSERT INTO permissions (name) 
+INSERT INTO permissions (name, description, module) 
 VALUES 
-    ('Client.active'),
-    ('Client.delete'),
-    ('Client.create'),
-    ('Client.update'),
-    ('Client.all'),
-    ('Client.read')
+    ('Client.active', 'Listar clientes activos', 'Clientes'),
+    ('Client.delete', 'Eliminar cliente', 'Clientes'),
+    ('Client.create', 'Crear cliente', 'Clientes'),
+    ('Client.update', 'Actualizar cliente', 'Clientes'),
+    ('Client.all', 'Permisos completos de cliente', 'Clientes'),
+    ('Client.read', 'Ver cliente', 'Clientes')
 ON CONFLICT (name) DO NOTHING;
 
 -- Category Permissions
-INSERT INTO permissions (name) 
+INSERT INTO permissions (name, description, module) 
 VALUES 
-    ('Category.create'),
-    ('Category.update'),
-    ('Category.delete'),
-    ('Category.all'),
-    ('Category.active'),
-    ('Category.read')
+    ('Category.active', 'Listar categorías activas', 'Categorias'),
+    ('Category.delete', 'Eliminar categoría', 'Categorias'),
+    ('Category.create', 'Crear categoría', 'Categorias'),
+    ('Category.update', 'Actualizar categoría', 'Categorias'),
+    ('Category.all', 'Permisos completos de categoría', 'Categorias'),
+    ('Category.read', 'Ver categoría', 'Categorias')
 ON CONFLICT (name) DO NOTHING;
 
 -- ProductSale Permissions
-INSERT INTO permissions (name) 
+INSERT INTO permissions (name, description, module) 
 VALUES 
-    ('ProductSale.create'),
-    ('ProductSale.update'),
-    ('ProductSale.delete'),
-    ('ProductSale.all'),
-    ('ProductSale.active'),
-    ('ProductSale.read')
+    ('ProductSale.active', 'Listar ventas activas de productos', 'Venta de Productos'),
+    ('ProductSale.delete', 'Eliminar venta de producto', 'Venta de Productos'),
+    ('ProductSale.create', 'Crear venta de producto', 'Venta de Productos'),
+    ('ProductSale.update', 'Actualizar venta de producto', 'Venta de Productos'),
+    ('ProductSale.all', 'Permisos completos de venta de productos', 'Venta de Productos'),
+    ('ProductSale.read', 'Ver venta de producto', 'Venta de Productos')
 ON CONFLICT (name) DO NOTHING;
 
 -- ProductPurchase Permissions
-INSERT INTO permissions (name) 
+INSERT INTO permissions (name, description, module) 
 VALUES 
-    ('ProductPurchase.create'),
-    ('ProductPurchase.update'),
-    ('ProductPurchase.delete'),
-    ('ProductPurchase.all'),
-    ('ProductPurchase.active'),
-    ('ProductPurchase.read')
+    ('ProductPurchase.active', 'Listar compras activas de productos', 'Compra de Productos'),
+    ('ProductPurchase.delete', 'Eliminar compra de producto', 'Compra de Productos'),
+    ('ProductPurchase.create', 'Crear compra de producto', 'Compra de Productos'),
+    ('ProductPurchase.update', 'Actualizar compra de producto', 'Compra de Productos'),
+    ('ProductPurchase.all', 'Permisos completos de compra de productos', 'Compra de Productos'),
+    ('ProductPurchase.read', 'Ver compra de producto', 'Compra de Productos')
 ON CONFLICT (name) DO NOTHING;
+
 
 -- Add all permissions to admin role
 INSERT INTO role_permissions (role_id, permission_id)

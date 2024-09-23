@@ -1,5 +1,8 @@
 package com.pdv.controllers;
 
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -11,6 +14,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import com.pdv.models.Permission;
 import com.pdv.models.Role;
 import com.pdv.services.RoleService;
 
@@ -85,5 +89,12 @@ public class RoleController {
                     return ResponseEntity.noContent().build();
                 })
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    //Listar todos los permisos
+    @GetMapping("/permissions")
+    @PreAuthorize("hasAuthority('Role.create') or hasAuthority('Role.update')")
+    public List<Permission> getAllPermissions() {
+        return roleService.findAllPermissions();
     }
 }
