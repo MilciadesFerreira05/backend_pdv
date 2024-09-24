@@ -3,7 +3,7 @@ package com.pdv.services;
 
 
 import java.util.List;
-import java.util.Map;
+
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -27,6 +27,11 @@ public class RoleService extends BaseService<Role> {
 
     RoleService() {
         this.repository = roleRepository;
+    }
+
+    @Override
+    public Page<Role> findActive(Pageable pageable) {
+        return roleRepository.findAllRolesWithPermissions(pageable);
     }
 
   

@@ -31,12 +31,12 @@ public class Role extends Auditable{
     private String name;
 
     @ManyToMany(fetch = FetchType.LAZY)
-    @JsonIgnore
+    // @JsonIgnore
     @JoinTable(
         name = "role_permissions", 
         joinColumns = @JoinColumn(  name = "role_id", referencedColumnName = "id"), 
         inverseJoinColumns = @JoinColumn(  name = "permission_id", referencedColumnName = "id")
-        )
+    )
     private Set<Permission> permissions;
 
 

@@ -1,8 +1,8 @@
 package com.pdv.controllers;
 
 import java.util.List;
-import java.util.Map;
 
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -52,7 +52,14 @@ public class RoleController {
         @RequestParam(defaultValue = "ASC", required = false) String direction
     ) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.valueOf(direction), sort));
-        return roleService.findActive(pageable);
+        Page<Role> roles = roleService.findActive(pageable);
+
+        roles.forEach(role -> {
+            Hibernate.initialize(role.getPermissions());
+            System.out.println(role.getPermissions());
+        });
+
+        return roles;
     }
 
     // Obtener un rol por id
