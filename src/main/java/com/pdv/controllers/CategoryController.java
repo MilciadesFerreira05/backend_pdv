@@ -1,5 +1,7 @@
 package com.pdv.controllers;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -46,6 +48,12 @@ public class CategoryController {
     ) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.valueOf(direction), sort));
         return categoryService.findActive(pageable);
+    }
+
+    @GetMapping("/unpaged")
+    @PreAuthorize("hasAuthority('Category.active')")
+    public List<Category> getAllUnpaged() {
+        return categoryService.findAll();
     }
 
     /**

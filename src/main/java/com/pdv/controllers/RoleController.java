@@ -56,8 +56,20 @@ public class RoleController {
 
         roles.forEach(role -> {
             Hibernate.initialize(role.getPermissions());
-            System.out.println(role.getPermissions());
         });
+
+        return roles;
+    }
+
+    @GetMapping("/unpaged")
+    @PreAuthorize("hasAuthority('Role.active')")
+    public List<Role> getUnpagedRoles() {
+
+        List<Role> roles = roleService.findAll();
+
+        // roles.forEach(role -> {
+        //     Hibernate.initialize(role.getPermissions());
+        // });
 
         return roles;
     }
@@ -75,6 +87,9 @@ public class RoleController {
     @PostMapping
     @PreAuthorize("hasAuthority('Role.create')")
     public ResponseEntity<Role> createRole(@Valid @RequestBody Role role) {
+
+        System.out.println(role);
+
         Role createdRole = roleService.save(role);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdRole);
     }

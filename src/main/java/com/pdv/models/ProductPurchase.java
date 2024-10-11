@@ -30,7 +30,7 @@ public class ProductPurchase extends Auditable {
     @Column(name = "total", nullable = false)
     private Double total;
 
-    @OneToMany(mappedBy = "purchase", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "purchase", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<ProductPurchaseItem> items;
 
 }

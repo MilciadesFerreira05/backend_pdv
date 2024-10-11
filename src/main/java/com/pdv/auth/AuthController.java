@@ -29,8 +29,6 @@ public class AuthController {
     
     @PostMapping("login")
     public ResponseEntity<HashMap<String, Object>> login(@RequestBody AuthRequest authRequest) {
-      
-        System.out.println(authRequest);
 
         try {
 

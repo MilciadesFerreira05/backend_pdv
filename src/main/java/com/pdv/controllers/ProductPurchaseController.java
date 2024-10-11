@@ -1,11 +1,17 @@
 package com.pdv.controllers;
 
 
+import java.io.ByteArrayInputStream;
+import java.sql.Date;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -14,14 +20,16 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.MediaType;
 
 import com.pdv.models.ProductPurchase;
 import com.pdv.services.ProductPurchaseService;
 
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 
@@ -89,4 +97,24 @@ public class ProductPurchaseController {
                 })
                 .orElse(ResponseEntity.notFound().build());
     }
+
+
+    @GetMapping("/report")
+    @PreAuthorize("hasAuthority('ProductPurchase.active')")
+    public ResponseEntity<InputStreamResource> generateReport(@RequestParam Date desde, @RequestParam Date hasta ) {
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("desde", desde);
+        parameters.put("hasta", hasta); 
+        ByteArrayInputStream bis = purchaseService.generatePdfReport("reports/purchase/purchases.jasper", parameters);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Disposition", "inline; filename=report.pdf");
+
+        return ResponseEntity
+                .ok()
+                .headers(headers)
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(new InputStreamResource(bis));
+    }
+
 }

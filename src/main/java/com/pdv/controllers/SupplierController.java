@@ -17,8 +17,6 @@ import com.pdv.services.SupplierService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 
-
-
 @RestController
 @RequestMapping("/api/suppliers")
 @Validated

@@ -43,9 +43,12 @@ public class UserService extends BaseService<User> {
         
         currentUser.setUsername(user.getUsername());
         currentUser.setEmail(user.getEmail());
-        currentUser.setPassword(encoder.encode(user.getPassword()));
         currentUser.setRole(user.getRole());
         currentUser.setUpdatedBy(LogedUser);
+        
+        if(user.getPassword() != null) {
+            currentUser.setPassword(encoder.encode(user.getPassword()));
+        }
         
         User updatedUser = userRepository.save(currentUser);
         

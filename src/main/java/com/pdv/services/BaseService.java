@@ -1,9 +1,18 @@
 package com.pdv.services;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
+import javax.sql.DataSource;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -12,6 +21,11 @@ import com.pdv.models.Auditable;
 import com.pdv.models.Log;
 import com.pdv.models.User;
 import com.pdv.repositories.BaseRepository;
+
+import net.sf.jasperreports.engine.JREmptyDataSource;
+import net.sf.jasperreports.engine.JasperExportManager;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
 
 @Service
 public abstract class BaseService<T> {
@@ -22,12 +36,22 @@ public abstract class BaseService<T> {
     @Autowired
     private LogService logService;
 
+    @Autowired 
+    private ResourceLoader resourceLoader;
+
+    @Autowired
+    private DataSource dataSource;
+
     @Autowired
     protected BaseRepository<T, Long> repository;
 
     public Page<T> findAll(Pageable pageable) {
        return repository.findAll(pageable);
     }
+
+    public List<T> findAll() {
+        return repository.findAll();
+     }
 
     public Page<T> findActive(Pageable pageable) {
         return repository.findByDeletedAtIsNull(pageable); 
@@ -71,6 +95,24 @@ public abstract class BaseService<T> {
             log.setUser(user);
             logService.save(log);
         }).start();
+    }
+
+
+    public ByteArrayInputStream generatePdfReport(String reportPath, Map<String, Object> parameters) {
+        try {
+            Resource resource = resourceLoader.getResource("classpath:" + reportPath);
+            InputStream reportStream = resource.getInputStream();
+
+            JasperPrint jasperPrint = JasperFillManager.fillReport(reportStream, parameters, dataSource.getConnection());
+
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            JasperExportManager.exportReportToPdfStream(jasperPrint, outputStream);
+
+            return new ByteArrayInputStream(outputStream.toByteArray());
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error al generar el reporte", e);
+        }
     }
 
 }

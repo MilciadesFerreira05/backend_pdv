@@ -2,12 +2,20 @@ package com.pdv.controllers;
 
 
 
+import java.io.ByteArrayInputStream;
+import java.sql.Date;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -91,5 +99,23 @@ public class ProductSaleController {
                     return ResponseEntity.noContent().build();
                 })
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/report")
+    @PreAuthorize("hasAuthority('ProductSale.active')")
+    public ResponseEntity<InputStreamResource> generateReport(@RequestParam Date desde, @RequestParam Date hasta ) {
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("desde", desde);
+        parameters.put("hasta", hasta); 
+        ByteArrayInputStream bis = saleService.generatePdfReport("reports/sale/sales.jasper", parameters);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Disposition", "inline; filename=report.pdf");
+
+        return ResponseEntity
+                .ok()
+                .headers(headers)
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(new InputStreamResource(bis));
     }
 }
