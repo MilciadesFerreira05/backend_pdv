@@ -33,4 +33,11 @@ public class ProductPurchase extends Auditable {
     @OneToMany(mappedBy = "purchase", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<ProductPurchaseItem> items;
 
+    @PrePersist
+    @PreUpdate
+    public void prePersist() {
+        this.total = this.items.stream().mapToDouble(ProductPurchaseItem::getSubtotal).sum();
+        this.items.forEach( item -> item.setPurchase(this));
+    }
+
 }

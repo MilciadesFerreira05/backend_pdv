@@ -1,36 +1,18 @@
 package com.pdv.services;
 
-import com.pdv.models.Product;
 import com.pdv.models.ProductPurchase;
 import com.pdv.models.User;
 import com.pdv.repositories.ProductPurchaseRepository;
 
-import net.sf.jasperreports.engine.JREmptyDataSource;
-import net.sf.jasperreports.engine.JasperExportManager;
-import net.sf.jasperreports.engine.JasperFillManager;
-import net.sf.jasperreports.engine.JasperPrint;
-
-import java.io.ByteArrayInputStream;
-import java.util.HashMap;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import org.springframework.core.io.Resource;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.util.Map;
 
 @Service
 public class ProductPurchaseService extends BaseService<ProductPurchase> {
 
     @Autowired
     private ProductPurchaseRepository ProductpurchaseRepository;
-
-    @Autowired
-    private ProductService productService;
 
     public ProductPurchaseService(){
         this.repository = ProductpurchaseRepository;
@@ -58,7 +40,7 @@ public class ProductPurchaseService extends BaseService<ProductPurchase> {
 
         ProductPurchase purchaseFound = this.repository.findById(purchase.getId()).orElseThrow(() -> new RuntimeException("ProductPurchase not found"));
 
-        String oldProductPurchase = purchaseFound.toString();
+         String oldProductPurchase = purchaseFound.toString();
 
         purchaseFound.setDate(purchase.getDate());
         purchaseFound.setInvoiceNumber(purchase.getInvoiceNumber());
@@ -69,9 +51,9 @@ public class ProductPurchaseService extends BaseService<ProductPurchase> {
         
         ProductPurchase updatedPurchase = this.repository.save(purchaseFound);
 
-        String newProductPurchase = updatedPurchase.toString();
+         String newProductPurchase = updatedPurchase.toString();
 
-        this.log("update", newProductPurchase, oldProductPurchase, currentUser);
+         this.log("update", newProductPurchase, oldProductPurchase, currentUser);
 
         return updatedPurchase;
     }

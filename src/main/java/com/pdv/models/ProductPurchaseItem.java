@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.ToString;
 
 @Entity
 @Table(name = "purchase_items")
@@ -17,6 +18,7 @@ public class ProductPurchaseItem {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore
+    @ToString.Exclude
     @JoinColumn(name = "purchase_id")
     private ProductPurchase purchase;
 
@@ -32,4 +34,10 @@ public class ProductPurchaseItem {
 
     @Column(nullable = false)
     private Double subtotal;
+
+    @PrePersist
+    @PreUpdate
+    public void setSubtotal() {
+        this.subtotal = this.quantity * this.price;
+    }
 }

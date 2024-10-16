@@ -12,6 +12,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.pdv.models.User;
+import com.pdv.requests.UserRequest;
 import com.pdv.services.UserService;
 
 @RestController
@@ -47,7 +48,14 @@ public class UserController {
 
     @PostMapping
     @PreAuthorize("hasAuthority('User.create')")
-    public ResponseEntity<User> create(@RequestBody User user) {
+    public ResponseEntity<User> create(@RequestBody UserRequest userR) {
+
+        User user = new User();
+        user.setUsername(userR.getUsername());
+        user.setEmail(userR.getEmail());
+        user.setPassword(userR.getPassword());
+        user.setRole(userR.getRole());
+
         return ResponseEntity.status(HttpStatus.CREATED).body(service.save(user));
     }
 
