@@ -23,7 +23,7 @@ public class JwtService {
     private String SECRET;
 
     @Value("${application.security.jwt.expiration}")
-    private String EXPIRATION;
+    private Long EXPIRATION;
     
     public String generateToken(String userName) {
         Map<String, Object> claims = new HashMap<>();
@@ -35,7 +35,7 @@ public class JwtService {
                 .setClaims(claims)
                 .setSubject(userName)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + Integer.parseInt(EXPIRATION)))
+                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION))
                 .signWith(getSignKey(), SignatureAlgorithm.HS256).compact();
     }
 
