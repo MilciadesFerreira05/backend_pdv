@@ -2,6 +2,8 @@ package com.pdv.services;
 
 
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +19,8 @@ public class SupplierService extends BaseService<Supplier> {
 
     public SupplierService() {
         this.repository = supplierRepository;
+        this.columns = List.of("name", "contactName", "email", "phone", "address");
+        
     }
     
     @Override

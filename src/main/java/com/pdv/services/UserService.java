@@ -1,5 +1,7 @@
 package com.pdv.services;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,9 @@ public class UserService extends BaseService<User> {
 
     public UserService() {
         this.repository = userRepository;
+        this.columns = List.of("username", "email");
+        this.relatedEntity = "role";
+        this.relatedColumns = List.of("name");
     }
 
     @Override

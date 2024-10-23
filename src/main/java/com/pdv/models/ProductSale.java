@@ -37,6 +37,8 @@ public class ProductSale extends Auditable {
     public void beforeSave() {
         this.total = this.items.stream().mapToDouble(ProductSaleItem::getSubtotal).sum();
         this.items.forEach( item -> item.setSale(this));
+
+        System.out.println(this);
     }
     
 }

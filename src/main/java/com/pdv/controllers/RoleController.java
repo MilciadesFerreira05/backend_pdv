@@ -49,10 +49,11 @@ public class RoleController {
         @RequestParam(defaultValue = "0", required = false) int page,
         @RequestParam(defaultValue = "10", required = false) int size,
         @RequestParam(defaultValue = "id", required = false) String sort,
-        @RequestParam(defaultValue = "ASC", required = false) String direction
+        @RequestParam(defaultValue = "ASC", required = false) String direction,
+        @RequestParam(required = false) String q
     ) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.valueOf(direction), sort));
-        Page<Role> roles = roleService.findActive(pageable);
+        Page<Role> roles = q != null && q.length() > 0 ? roleService.search(q, pageable) : roleService.findActive(pageable);
 
         roles.forEach(role -> {
             Hibernate.initialize(role.getPermissions());

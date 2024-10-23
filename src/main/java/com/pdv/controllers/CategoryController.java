@@ -37,6 +37,7 @@ public class CategoryController {
      * @param sort     the field to sort by
      * @param direction the direction to sort by
      * @return a page of active categories
+     * @throws IllegalArgumentException if page, size, or sort is invalid
      */
     @GetMapping
     @PreAuthorize("hasAuthority('Category.active')")
@@ -44,9 +45,15 @@ public class CategoryController {
         @RequestParam(defaultValue = "0", required = false) int page,
         @RequestParam(defaultValue = "10", required = false) int size,
         @RequestParam(defaultValue = "id", required = false) String sort,
-        @RequestParam(defaultValue = "ASC", required = false) String direction
+        @RequestParam(defaultValue = "ASC", required = false) String direction,
+        @RequestParam(required = false) String q
     ) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.valueOf(direction), sort));
+
+        if (q != null && q.length() > 0) {
+            return categoryService.search(q, pageable);
+        }
+
         return categoryService.findActive(pageable);
     }
 

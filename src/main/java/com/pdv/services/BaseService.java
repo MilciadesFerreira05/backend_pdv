@@ -3,7 +3,9 @@ package com.pdv.services;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.lang.reflect.ParameterizedType;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -14,7 +16,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.pdv.models.Auditable;
@@ -22,7 +26,12 @@ import com.pdv.models.Log;
 import com.pdv.models.User;
 import com.pdv.repositories.BaseRepository;
 
-import net.sf.jasperreports.engine.JREmptyDataSource;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import net.sf.jasperreports.engine.JasperExportManager;
 import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
@@ -44,6 +53,14 @@ public abstract class BaseService<T> {
 
     @Autowired
     protected BaseRepository<T, Long> repository;
+
+    @Autowired
+    private EntityManager entityManager;
+
+    protected List<String> columns = new ArrayList<>();
+    protected List<String> relatedColumns = new ArrayList<>();
+    protected String relatedEntity = null;
+    
 
     public Page<T> findAll(Pageable pageable) {
        return repository.findAll(pageable);
@@ -97,7 +114,6 @@ public abstract class BaseService<T> {
         }).start();
     }
 
-
     public ByteArrayInputStream generatePdfReport(String reportPath, Map<String, Object> parameters) {
         try {
             Resource resource = resourceLoader.getResource("classpath:" + reportPath);
@@ -113,6 +129,60 @@ public abstract class BaseService<T> {
         } catch (Exception e) {
             throw new RuntimeException("Error al generar el reporte", e);
         }
+    }
+
+    public Page<T> search(String searchTerm, Pageable pageable) {
+        // Crear la especificación
+        Specification<T> spec = (root, query, criteriaBuilder) -> {
+            List<Predicate> likePredicates = new ArrayList<>();
+
+            // Añadir condiciones para cada columna
+            for (String column : columns) {
+                likePredicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get(column).as(String.class)), "%" + searchTerm.toLowerCase() + "%"));
+            }
+
+            // Si hay columnas relacionadas, añadimos el join
+            if (!relatedColumns.isEmpty() && relatedEntity != null) {
+                Join<Object, Object> relatedJoin = root.join(relatedEntity);
+
+                for (String relatedColumn : relatedColumns) {
+                    likePredicates.add(criteriaBuilder.like(criteriaBuilder.lower(relatedJoin.get(relatedColumn).as(String.class)), "%" + searchTerm.toLowerCase() + "%"));
+                }
+            }
+
+
+            Predicate likePredicate = criteriaBuilder.or(likePredicates.toArray(new Predicate[0]));
+
+            // Solo incluir registros donde deletedAt es NULL
+            Predicate deletedAtPredicate = criteriaBuilder.isNull(root.get("deletedAt"));
+
+
+            return criteriaBuilder.and(likePredicate, deletedAtPredicate);
+        };
+        
+        @SuppressWarnings("unchecked")
+        Class<T> entityClass = (Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
+        
+        // Crear la consulta
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<T> criteriaQuery = cb.createQuery(entityClass);
+        Root<T> root = criteriaQuery.from(entityClass);
+        
+        criteriaQuery.select(root).where(spec.toPredicate(root, criteriaQuery, cb));
+        
+        // Aplicar paginación
+        var typedQuery = entityManager.createQuery(criteriaQuery);
+        typedQuery.setFirstResult((int) pageable.getOffset());
+        typedQuery.setMaxResults(pageable.getPageSize());
+
+        List<T> results = typedQuery.getResultList();
+
+        // Contar total de registros
+        CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
+        countQuery.select(cb.count(countQuery.from(entityClass)));
+        Long total = entityManager.createQuery(countQuery).getSingleResult();
+
+        return new PageImpl<>(results, pageable, total);
     }
 
 }

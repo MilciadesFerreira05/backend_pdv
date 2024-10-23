@@ -1,8 +1,11 @@
 package com.pdv.services;
 
 import com.pdv.models.ProductPurchase;
+import com.pdv.models.ProductPurchaseItem;
 import com.pdv.models.User;
 import com.pdv.repositories.ProductPurchaseRepository;
+
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,6 +19,10 @@ public class ProductPurchaseService extends BaseService<ProductPurchase> {
 
     public ProductPurchaseService(){
         this.repository = ProductpurchaseRepository;
+        this.columns = List.of("date", "invoiceNumber", "total");
+        this.relatedEntity = "supplier";
+        this.relatedColumns = List.of("name");
+
     }
 
     @Transactional
@@ -40,14 +47,27 @@ public class ProductPurchaseService extends BaseService<ProductPurchase> {
 
         ProductPurchase purchaseFound = this.repository.findById(purchase.getId()).orElseThrow(() -> new RuntimeException("ProductPurchase not found"));
 
-         String oldProductPurchase = purchaseFound.toString();
+        String oldProductPurchase = purchaseFound.toString();
 
         purchaseFound.setDate(purchase.getDate());
         purchaseFound.setInvoiceNumber(purchase.getInvoiceNumber());
-        purchaseFound.setItems(purchase.getItems());
         purchaseFound.setTotal(purchase.getTotal());
         purchaseFound.setSupplier(purchase.getSupplier());
         purchaseFound.setUpdatedBy(currentUser);
+
+        List<ProductPurchaseItem> existingItems = purchaseFound.getItems();
+        existingItems.removeIf(item -> !purchase.getItems().contains(item));
+        for (ProductPurchaseItem newItem : purchase.getItems()) {
+            if (existingItems.contains(newItem)) {
+                ProductPurchaseItem existingItem = existingItems.get(existingItems.indexOf(newItem));
+                existingItem.setQuantity(newItem.getQuantity());
+                existingItem.setPrice(newItem.getPrice());
+                existingItem.setSubtotal(newItem.getSubtotal());
+            } else {
+                newItem.setPurchase(purchaseFound);
+                existingItems.add(newItem);
+            }
+        }
         
         ProductPurchase updatedPurchase = this.repository.save(purchaseFound);
 

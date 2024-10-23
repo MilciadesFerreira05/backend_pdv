@@ -47,9 +47,15 @@ public class ProductSaleController {
         @RequestParam(defaultValue = "0", required = false) int page,
         @RequestParam(defaultValue = "10", required = false) int size,
         @RequestParam(defaultValue = "id", required = false) String sort,
-        @RequestParam(defaultValue = "ASC", required = false) String direction
+        @RequestParam(defaultValue = "ASC", required = false) String direction,
+        @RequestParam(required = false) String q
     ) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.valueOf(direction), sort));
+
+        if (q != null && q.length() > 0) {
+            return saleService.search(q, pageable);
+        }
+        
         return saleService.findActive(pageable);
     }
 

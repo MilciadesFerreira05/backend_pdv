@@ -25,8 +25,9 @@ public class RoleService extends BaseService<Role> {
     @Autowired
     PermissionRepository permissionRepository;
 
-    RoleService() {
+    public RoleService() {
         this.repository = roleRepository;
+        this.columns = List.of("name");
     }
 
     @Override

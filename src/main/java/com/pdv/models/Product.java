@@ -43,8 +43,8 @@ public class Product extends Auditable {
     @Column(nullable = false)
     private Double price;
 
-    @Column(nullable = false)
-    private Double stock = 0.0;
+    @Column(nullable = false, updatable = false, insertable = false)
+    private Double stock;
 
     @Column(nullable = true)
     private Boolean stockControl;

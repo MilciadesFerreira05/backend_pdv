@@ -15,6 +15,8 @@ import com.pdv.models.User;
 import com.pdv.requests.UserRequest;
 import com.pdv.services.UserService;
 
+import jakarta.validation.constraints.Positive;
+
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
@@ -28,9 +30,15 @@ public class UserController {
         @RequestParam(defaultValue = "0", required = false) int page,
         @RequestParam(defaultValue = "10", required = false) int size,
         @RequestParam(defaultValue = "id", required = false) String sort,
-        @RequestParam(defaultValue = "ASC", required = false) String direction
+        @RequestParam(defaultValue = "ASC", required = false) String direction,
+        @RequestParam(required = false) String q
     ) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.valueOf(direction), sort));
+
+        if (q != null && q.length() > 0) {
+            return service.search(q, pageable);
+        }
+
         return service.findAll(pageable);
     }
 
@@ -43,7 +51,7 @@ public class UserController {
         @RequestParam(defaultValue = "ASC", required = false) String direction
     ) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.valueOf(direction), sort));
-        return service.findAll(pageable);
+        return service.findActive(pageable);
     }
 
     @PostMapping
@@ -60,17 +68,30 @@ public class UserController {
     }
 
 
-    @PutMapping
+    @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('User.update')")
-    public User update(@RequestBody User user) {
-        return service.save(user);
+    public ResponseEntity<User> update(@RequestBody UserRequest userR, @PathVariable Long id) {
+        
+        User user = new User();
+        user.setId(id);
+        user.setUsername(userR.getUsername());
+        user.setEmail(userR.getEmail());
+        user.setPassword(userR.getPassword());
+        user.setRole(userR.getRole());
+
+        return ResponseEntity.ok(service.update(user, id));
+       
     }
 
-
-    @DeleteMapping
+    @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('User.delete')")
-    public void delete(@RequestBody User user) {
-        service.delete(user);
+    public ResponseEntity<Object> delete(@PathVariable @Positive Long id) {
+        return service.findById(id)
+                .map(user -> {
+                    service.delete(user);
+                    return ResponseEntity.ok().build();
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
 
 

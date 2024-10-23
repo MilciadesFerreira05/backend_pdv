@@ -1,5 +1,7 @@
 package com.pdv.services;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +16,7 @@ public class ClientService extends BaseService<Client> {
 
     public ClientService(){
         this.repository = clientRepository;
+        this.columns = List.of("id", "name", "ruc", "contactName", "email", "phone", "address");
     }
 
     @Override

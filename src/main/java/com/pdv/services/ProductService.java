@@ -4,6 +4,8 @@ import com.pdv.models.Product;
 import com.pdv.models.User;
 import com.pdv.repositories.ProductRepository;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,6 +19,9 @@ public class ProductService extends BaseService<Product> {
 
     public ProductService() {
         this.repository = productRepository;
+        this.columns = List.of("code", "name", "description", "price", "stock", "stockControl" );
+        this.relatedEntity = "category";
+        this.relatedColumns = List.of("name");
     }
 
     
