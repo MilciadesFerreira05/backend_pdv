@@ -160,7 +160,207 @@ JOIN permissions p ON true
 WHERE r.name = 'Admin'
 ON CONFLICT (role_id, permission_id) DO NOTHING;
 
+-- Function to calculate product stock
+CREATE OR REPLACE FUNCTION public.calculate_product_stock(p_product_id integer)
+ RETURNS double precision
+ LANGUAGE plpgsql
+AS $function$
+DECLARE
+    purchase_quantity DOUBLE PRECISION;
+    sales_quantity DOUBLE PRECISION;
+    stock DOUBLE PRECISION;
+BEGIN
+    -- Sumar todas las cantidades compradas que no estén eliminadas
+    SELECT COALESCE(SUM(pi.quantity), 0)::DOUBLE PRECISION
+    INTO purchase_quantity
+    FROM purchase_items pi
+    JOIN products_purchases pp ON pi.purchase_id = pp.id
+    WHERE pi.product_id = p_product_id
+      AND pp.deleted_at IS NULL;
+
+    -- Sumar todas las cantidades vendidas que no estén eliminadas
+    SELECT COALESCE(SUM(si.quantity), 0)::DOUBLE PRECISION
+    INTO sales_quantity
+    FROM sale_items si
+    JOIN products_sales ps ON si.sale_id = ps.id
+    WHERE si.product_id = p_product_id
+      AND ps.deleted_at IS NULL;
+
+    -- Calcular el stock final
+    stock := purchase_quantity - sales_quantity;
+
+    RETURN stock;
+END;
+$function$
+;
+
+-- Function to calculate product stock
+CREATE OR REPLACE FUNCTION public.calculate_product_stock(p_product_id bigint)
+ RETURNS double precision
+ LANGUAGE plpgsql
+AS $function$
+DECLARE
+    purchase_quantity DOUBLE PRECISION;
+    sales_quantity DOUBLE PRECISION;
+    stock DOUBLE PRECISION;
+BEGIN
+    -- Sumar todas las cantidades compradas que no estén eliminadas
+    SELECT COALESCE(SUM(pi.quantity), 0)::DOUBLE PRECISION
+    INTO purchase_quantity
+    FROM purchase_items pi
+    JOIN products_purchases pp ON pi.purchase_id = pp.id
+    WHERE pi.product_id = p_product_id
+      AND pp.deleted_at IS NULL;
+
+    -- Sumar todas las cantidades vendidas que no estén eliminadas
+    SELECT COALESCE(SUM(si.quantity), 0)::DOUBLE PRECISION
+    INTO sales_quantity
+    FROM sale_items si
+    JOIN products_sales ps ON si.sale_id = ps.id
+    WHERE si.product_id = p_product_id
+      AND ps.deleted_at IS NULL;
+
+    -- Calcular el stock final
+    stock := purchase_quantity - sales_quantity;
+
+    RETURN stock;
+END;
+$function$
+;
+
+-- Function to update stock after delete
+CREATE OR REPLACE FUNCTION public.update_stock_after_delete()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+DECLARE
+    sale_item RECORD;
+    new_stock DOUBLE PRECISION;
+BEGIN
+    -- Iterar solo sobre los items de la venta eliminada
+    -- cuyos productos tienen stock_control = TRUE
+    FOR sale_item IN
+        SELECT si.*
+        FROM sale_items si
+        JOIN products p ON si.product_id = p.id
+        WHERE si.sale_id = OLD.id
+        AND p.stock_control = TRUE
+    LOOP
+        -- Llamar a la función para calcular el stock del producto
+        new_stock := calculate_product_stock(sale_item.product_id);
+
+        -- Verificar si el stock calculado es negativo
+        IF new_stock < 0 THEN
+            RAISE EXCEPTION 'Stock negativo para el producto ID %', sale_item.product_id;
+        END IF;
+
+        -- Actualizar el stock en la tabla products
+        UPDATE products
+        SET stock = new_stock
+        WHERE id = sale_item.product_id;
+    END LOOP;
+
+    RETURN OLD;
+END;
+$function$
+;
+
+-- Function to update stock after delete
+CREATE OR REPLACE FUNCTION public.update_stock_after_delete_purchase()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+DECLARE
+    purchase_item RECORD;
+    new_stock DOUBLE PRECISION;
+BEGIN
+    -- Iterar solo sobre los items de la compra eliminada
+    -- cuyos productos tienen stock_control = TRUE
+    FOR purchase_item IN
+        SELECT pi.*
+        FROM purchase_items pi
+        JOIN products p ON pi.product_id = p.id
+        WHERE pi.purchase_id = OLD.id
+        AND p.stock_control = TRUE
+    LOOP
+        -- Llamar a la función para calcular el stock del producto, restando la cantidad comprada
+        new_stock := calculate_product_stock(purchase_item.product_id);
+
+        -- Verificar si el stock calculado es negativo
+        IF new_stock < 0 THEN
+           RAISE EXCEPTION 'Stock negativo para el producto ID %', purchase_item.product_id;
+        END IF;
+
+        -- Actualizar el stock en la tabla products
+        UPDATE products
+        SET stock = new_stock
+        WHERE id = purchase_item.product_id;
+    END LOOP;
+
+    RETURN OLD;
+END;
+$function$
+;
+
+-- Function to update stock after purchase
+CREATE OR REPLACE FUNCTION public.update_stock_after_purchase()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+DECLARE
+    new_stock DOUBLE PRECISION;
+BEGIN
+    -- Verificar si el producto tiene stock_control = TRUE
+    IF (SELECT stock_control FROM products WHERE id = NEW.product_id) THEN
+        -- Recalcular el stock actual llamando a calculate_product_stock
+        new_stock := calculate_product_stock(NEW.product_id);
+
+        IF new_stock < 0 THEN
+            RAISE EXCEPTION 'Stock negativo para el producto ID %', NEW.product_id;
+        END IF;
+
+        -- Actualizar el stock del producto en la tabla products
+        UPDATE products
+        SET stock = new_stock
+        WHERE id = NEW.product_id;
+    END IF;
+
+    RETURN NEW;
+END;
+$function$
+;
+
+-- Trigger to update stock after delete
+create trigger trg_update_stock_after_pp
+after
+update of deleted_at on public.products_purchases for each row when (
+    (
+        old.deleted_at is distinct from new.deleted_at
+    )
+)
+execute function update_stock_after_delete_purchase ()
 
 
+-- Trigger to update stock after delete
+create trigger trg_update_stock_after_ps
+after
+update of deleted_at on public.products_sales for each row
+execute function update_stock_after_delete ()
 
 
+-- Trigger to update stock after purchase
+create trigger trg_update_stock_after_purchase
+after insert
+or delete
+or
+update on public.purchase_items for each row
+execute function update_stock_after_purchase ()
+
+
+-- Trigger to update stock after sale
+create trigger trg_update_stock_after_sale
+after insert
+or delete
+or
+update on public.sale_items for each row
+execute function update_stock_after_purchase ()
