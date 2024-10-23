@@ -1,6 +1,5 @@
 package com.pdv.services;
 
-import com.pdv.models.Product;
 import com.pdv.models.ProductSale;
 import com.pdv.models.ProductSaleItem;
 import com.pdv.models.User;
