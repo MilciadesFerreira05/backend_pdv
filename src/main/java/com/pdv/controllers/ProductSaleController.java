@@ -124,4 +124,16 @@ public class ProductSaleController {
                 .contentType(MediaType.APPLICATION_PDF)
                 .body(new InputStreamResource(bis));
     }
+
+    
+    @GetMapping("/print/{id}")
+    @PreAuthorize("hasAuthority('ProductSale.active')")
+    public ResponseEntity<Object> print(@PathVariable @Positive Long id) {
+        return saleService.findById(id)
+        .map(product -> {
+            saleService.printSale(product);
+            return ResponseEntity.noContent().build();
+        })
+        .orElse(ResponseEntity.notFound().build());
+    }
 }

@@ -70,7 +70,7 @@ VALUES
     ('Product.delete', 'Eliminar producto', 'Productos'),
     ('Product.create', 'Crear producto', 'Productos'),
     ('Product.update', 'Actualizar producto', 'Productos'),
-    ('Product.all', 'Permisos completos de producto', 'Productos'),
+    ('Product.all', 'Ver todos', 'Productos'),
     ('Product.read', 'Ver producto', 'Productos')
 ON CONFLICT (name) DO NOTHING;
 
@@ -81,7 +81,7 @@ VALUES
     ('Supplier.delete', 'Eliminar proveedor', 'Proveedores'),
     ('Supplier.create', 'Crear proveedor', 'Proveedores'),
     ('Supplier.update', 'Actualizar proveedor', 'Proveedores'),
-    ('Supplier.all', 'Permisos completos de proveedor', 'Proveedores'),
+    ('Supplier.all', 'Ver todos', 'Proveedores'),
     ('Supplier.read', 'Ver proveedor', 'Proveedores')
 ON CONFLICT (name) DO NOTHING;
 
@@ -92,7 +92,7 @@ VALUES
     ('Role.delete', 'Eliminar rol', 'Roles'),
     ('Role.create', 'Crear rol', 'Roles'),
     ('Role.update', 'Actualizar rol', 'Roles'),
-    ('Role.all', 'Permisos completos de rol', 'Roles'),
+    ('Role.all', 'Ver todos', 'Roles'),
     ('Role.read', 'Ver rol', 'Roles')
 ON CONFLICT (name) DO NOTHING;
 
@@ -103,7 +103,7 @@ VALUES
     ('User.delete', 'Eliminar usuario', 'Usuarios'),
     ('User.create', 'Crear usuario', 'Usuarios'),
     ('User.update', 'Actualizar usuario', 'Usuarios'),
-    ('User.all', 'Permisos completos de usuario', 'Usuarios'),
+    ('User.all', 'Ver todos', 'Usuarios'),
     ('User.read', 'Ver usuario', 'Usuarios')
 ON CONFLICT (name) DO NOTHING;
 
@@ -114,7 +114,7 @@ VALUES
     ('Client.delete', 'Eliminar cliente', 'Clientes'),
     ('Client.create', 'Crear cliente', 'Clientes'),
     ('Client.update', 'Actualizar cliente', 'Clientes'),
-    ('Client.all', 'Permisos completos de cliente', 'Clientes'),
+    ('Client.all', 'Ver todos', 'Clientes'),
     ('Client.read', 'Ver cliente', 'Clientes')
 ON CONFLICT (name) DO NOTHING;
 
@@ -125,7 +125,7 @@ VALUES
     ('Category.delete', 'Eliminar categoría', 'Categorias'),
     ('Category.create', 'Crear categoría', 'Categorias'),
     ('Category.update', 'Actualizar categoría', 'Categorias'),
-    ('Category.all', 'Permisos completos de categoría', 'Categorias'),
+    ('Category.all', 'Ver todos', 'Categorias'),
     ('Category.read', 'Ver categoría', 'Categorias')
 ON CONFLICT (name) DO NOTHING;
 
@@ -136,7 +136,7 @@ VALUES
     ('ProductSale.delete', 'Eliminar venta de producto', 'Venta de Productos'),
     ('ProductSale.create', 'Crear venta de producto', 'Venta de Productos'),
     ('ProductSale.update', 'Actualizar venta de producto', 'Venta de Productos'),
-    ('ProductSale.all', 'Permisos completos de venta de productos', 'Venta de Productos'),
+    ('ProductSale.all', 'Ver todos de productos', 'Venta de Productos'),
     ('ProductSale.read', 'Ver venta de producto', 'Venta de Productos')
 ON CONFLICT (name) DO NOTHING;
 
@@ -147,7 +147,7 @@ VALUES
     ('ProductPurchase.delete', 'Eliminar compra de producto', 'Compra de Productos'),
     ('ProductPurchase.create', 'Crear compra de producto', 'Compra de Productos'),
     ('ProductPurchase.update', 'Actualizar compra de producto', 'Compra de Productos'),
-    ('ProductPurchase.all', 'Permisos completos de compra de productos', 'Compra de Productos'),
+    ('ProductPurchase.all', 'Ver todos de productos', 'Compra de Productos'),
     ('ProductPurchase.read', 'Ver compra de producto', 'Compra de Productos')
 ON CONFLICT (name) DO NOTHING;
 
@@ -364,3 +364,31 @@ or delete
 or
 update on public.sale_items for each row
 execute function update_stock_after_purchase ()
+
+
+CREATE OR REPLACE FUNCTION public.verify_stock_control()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+BEGIN
+
+    IF NEW.stock_control is FALSE THEN
+        NEW.stock := 0; 
+	else 
+		NEW.stock := calculate_product_stock(new.id);
+    END IF;
+
+
+    RETURN NEW;
+		
+END;
+$function$
+;
+
+
+create trigger trg_verify_stock_control before
+insert
+    or
+update
+    on
+    public.products for each row execute function verify_stock_control()

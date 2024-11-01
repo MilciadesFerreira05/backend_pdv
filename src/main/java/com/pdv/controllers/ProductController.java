@@ -17,6 +17,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.ByteArrayInputStream;
+import java.util.HashMap;
 import java.util.Optional;
 
 @RestController
@@ -79,6 +80,14 @@ public class ProductController {
         return productService.findByNameOrDescriptionOrCode(q, pageable);
     }
 
+    @GetMapping("/code")
+    @PreAuthorize("hasAuthority('Product.active')")
+    public Optional<Product> searchByNameOrDescriptionOrCode(
+        @RequestParam(required = true) String code
+    ) {
+        return productService.findByCode(code);
+    }
+
     @GetMapping("/all")
     @PreAuthorize("hasAuthority('Product.all')")
     public Page<Product> getAll(
@@ -128,9 +137,12 @@ public class ProductController {
 
     @GetMapping("/report")
     @PreAuthorize("hasAuthority('Product.active')")
-    public ResponseEntity<InputStreamResource> generateReport() {
-    
-        ByteArrayInputStream bis = productService.generatePdfReport("reports/products/products.jasper", null );
+    public ResponseEntity<InputStreamResource> generateReport(@RequestParam HashMap<String, Object> parameters) {
+        
+        String report = parameters.get("report").toString();
+        parameters.remove("report");
+
+        ByteArrayInputStream bis = productService.generatePdfReport("reports/products/"+report+".jasper", parameters);
 
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "inline; filename=report.pdf");

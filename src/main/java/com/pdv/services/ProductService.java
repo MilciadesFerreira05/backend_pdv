@@ -4,7 +4,9 @@ import com.pdv.models.Product;
 import com.pdv.models.User;
 import com.pdv.repositories.ProductRepository;
 
+import java.lang.StackWalker.Option;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -23,10 +25,13 @@ public class ProductService extends BaseService<Product> {
         this.relatedEntity = "category";
         this.relatedColumns = List.of("name");
     }
-
-    
+  
     public Page<Product> findByNameOrDescriptionOrCode(String q, Pageable pageable) {
         return this.productRepository.findByNameOrDescriptionOrCode(q, pageable);
+    }
+    
+    public Optional<Product> findByCode(String code) {
+        return this.productRepository.findByCode(code);
     }
 
     @Override
@@ -43,7 +48,6 @@ public class ProductService extends BaseService<Product> {
         product.setName(updatedProduct.getName());
         product.setDescription(updatedProduct.getDescription());
         product.setPrice(updatedProduct.getPrice());
-        product.setStock(updatedProduct.getStock());
         product.setStockControl(updatedProduct.getStockControl());
         product.setUpdatedBy(user);
 
