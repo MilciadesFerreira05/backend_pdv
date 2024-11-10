@@ -3,8 +3,8 @@
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="purchases" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="49743ee0-279f-4b32-8a0c-726ce11bfb24">
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="New Data Adapter (3)"/>
-	<parameter name="hasta" class="java.sql.Date"/>
-	<parameter name="desde" class="java.sql.Date"/>
+	<parameter name="hasta" class="java.lang.String"/>
+	<parameter name="desde" class="java.lang.String"/>
 	<queryString language="SQL">
 		<![CDATA[SELECT 
 	products_sales.id,
@@ -29,8 +29,7 @@ FROM sale_items
 	 products_sales.created_by = users.id 
 	 WHERE 
 	 products_sales.deleted_at IS NULL  
-	 AND products_sales.date BETWEEN $P{desde} AND $P{hasta}
-]]>
+	 AND products_sales.date BETWEEN TO_DATE($P{desde}, 'YYYY-MM-DD') AND TO_DATE($P{hasta}, 'YYYY-MM-DD')]]>
 	</queryString>
 	<field name="id" class="java.lang.Long">
 		<property name="com.jaspersoft.studio.field.name" value="id"/>

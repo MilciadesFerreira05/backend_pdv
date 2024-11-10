@@ -108,12 +108,13 @@ public class ProductSaleController {
     }
 
     @GetMapping("/report")
-    @PreAuthorize("hasAuthority('ProductSale.active')")
-    public ResponseEntity<InputStreamResource> generateReport(@RequestParam Date desde, @RequestParam Date hasta ) {
-        Map<String, Object> parameters = new HashMap<>();
-        parameters.put("desde", desde);
-        parameters.put("hasta", hasta); 
-        ByteArrayInputStream bis = saleService.generatePdfReport("reports/sale/sales.jasper", parameters);
+    @PreAuthorize("hasAuthority('Product.active')")
+    public ResponseEntity<InputStreamResource> generateReport(@RequestParam HashMap<String, Object> parameters) {
+        
+        String report = parameters.get("report").toString();
+        parameters.remove("report");
+
+        ByteArrayInputStream bis = saleService.generatePdfReport("reports/sale/"+report+".jasper", parameters);
 
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "inline; filename=report.pdf");
