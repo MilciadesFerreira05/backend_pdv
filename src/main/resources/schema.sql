@@ -43,6 +43,7 @@ CREATE TABLE IF NOT EXISTS roles (
     CONSTRAINT role_created_by_fkey FOREIGN KEY (created_by) REFERENCES public.users(id)
 );
 
+--drop TABLE role_permissions;
 CREATE TABLE IF NOT EXISTS role_permissions (
     id SERIAL PRIMARY KEY,
     role_id INTEGER NOT NULL REFERENCES roles(id),
@@ -338,14 +339,14 @@ update of deleted_at on public.products_purchases for each row when (
         old.deleted_at is distinct from new.deleted_at
     )
 )
-execute function update_stock_after_delete_purchase ()
+execute function update_stock_after_delete_purchase ();
 
 
 -- Trigger to update stock after delete
 create trigger trg_update_stock_after_ps
 after
 update of deleted_at on public.products_sales for each row
-execute function update_stock_after_delete ()
+execute function update_stock_after_delete ();
 
 
 -- Trigger to update stock after purchase
@@ -354,7 +355,7 @@ after insert
 or delete
 or
 update on public.purchase_items for each row
-execute function update_stock_after_purchase ()
+execute function update_stock_after_purchase ();
 
 
 -- Trigger to update stock after sale
@@ -363,7 +364,7 @@ after insert
 or delete
 or
 update on public.sale_items for each row
-execute function update_stock_after_purchase ()
+execute function update_stock_after_purchase ();
 
 
 CREATE OR REPLACE FUNCTION public.verify_stock_control()
