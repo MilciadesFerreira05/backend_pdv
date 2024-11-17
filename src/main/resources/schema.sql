@@ -392,3 +392,40 @@ insert
 update
     on
     public.products for each row execute function verify_stock_control()
+
+
+-- DROP FUNCTION public.generate_unique_barcode();
+
+CREATE OR REPLACE FUNCTION public.generate_unique_barcode()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+DECLARE
+  generated_barcode TEXT;
+BEGIN 
+  -- Verifica si el código de barras proporcionado es nulo o vacío
+  IF NEW.code IS NULL OR LENGTH(NEW.code) = 0 THEN
+    -- Generar un nuevo código de barras único
+    LOOP
+      generated_barcode := LPAD(FLOOR(RANDOM() * 100000000000)::TEXT, 12, '0'); -- Genera un código de 12 dígitos
+      -- Verifica la unicidad del código de barras generado
+      EXIT WHEN NOT EXISTS (SELECT 1 FROM products WHERE code = generated_barcode);
+    END LOOP;
+
+    -- Asignar el código generado al producto
+    NEW.code := generated_barcode;
+  END IF;
+
+  RETURN NEW;
+END;
+$function$
+;
+
+
+
+create trigger adjust_or_generate_barcode before
+insert
+    or
+update
+    on
+    public.products for each row execute function generate_unique_barcode()
