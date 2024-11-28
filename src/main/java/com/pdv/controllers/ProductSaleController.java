@@ -3,10 +3,7 @@ package com.pdv.controllers;
 
 
 import java.io.ByteArrayInputStream;
-import java.sql.Date;
 import java.util.HashMap;
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
